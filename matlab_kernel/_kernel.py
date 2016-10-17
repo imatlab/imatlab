@@ -70,9 +70,28 @@ class MatlabKernel(Kernel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._silent = False
+
+        with ExitStack() as stack:
+            for name in ["stdout", "stderr"]:
+                stream = getattr(sys, "__{}__".format(name))
+                def callback(data, *, _name=name, _stream=stream):
+                    if not self._silent:
+                        self.send_response(
+                            self.iopub_socket,
+                            "stream",
+                            {"name": _name,
+                             "text": data.decode(_stream.encoding)})
+                stack.enter_context(
+                    _redirection.redirect(stream.fileno(), callback))
+            self._atexit = stack.pop_all().close
+
         self._engine = matlab.engine.start_matlab()
         self._history = MatlabHistory(
             Path(self._engine.prefdir(), "History.xml"))
+
+    def __del__(self):
+        self._atexit()
 
     def do_execute(
             self, code, silent, store_history=True,
@@ -80,37 +99,19 @@ class MatlabKernel(Kernel):
             user_expressions=None, allow_stdin=False):
 
         status = "ok"
+        if silent:
+            self._silent = True
+        start = time.perf_counter()
 
-        with ExitStack() as stack:
-
-            @stack.push
-            def __exit__(exc_type, exc_value, tb):
-                nonlocal status
-                if isinstance(exc_value, (SyntaxError,
-                                          MatlabExecutionError,
-                                          KeyboardInterrupt)):
-                    status = "error"
-                    return True  # Suppress it.
-
-            for name in ["stdout", "stderr"]:
-                stream = getattr(sys, "__{}__".format(name))
-                stack.enter_context(
-                    _redirection.redirect(
-                        stream.fileno(),
-                        ((lambda s: None) if silent else
-                         (lambda s, *, _name=name, _stream=stream:
-                          self.send_response(
-                              self.iopub_socket,
-                              "stream",
-                              {"name": _name,
-                               "text": s.decode(_stream.encoding)})))))
-            start = time.perf_counter()
-            future = self._engine.eval(code, nargout=0, async=True)
-            future.result()
+        try:
+            self._engine.eval(code, nargout=0)
+        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+            status = "error"
 
         if store_history:
             elapsed = time.perf_counter() - start
             self._history.append(code, elapsed, status == "ok")
+        self._silent = False
 
         return {"status": status,
                 "execution_count": self.execution_count}
