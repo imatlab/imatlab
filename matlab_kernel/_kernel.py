@@ -108,7 +108,7 @@ class MatlabKernel(Kernel):
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
             status = "error"
 
-        if store_history:
+        if store_history and code:  # Skip empty lines.
             elapsed = time.perf_counter() - start
             self._history.append(code, elapsed, status == "ok")
         self._silent = False
