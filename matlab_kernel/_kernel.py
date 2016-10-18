@@ -1,6 +1,7 @@
 from contextlib import ExitStack
 import json
 from pathlib import Path
+import re
 import sys
 from tempfile import TemporaryDirectory
 import time
@@ -143,9 +144,17 @@ class MatlabKernel(Kernel):
                 "matches": [entry["popupCompletion"]
                             for entry in info["finalCompletions"]]}
 
-    # Not supported:
-    # def do_inspect(self, code, cursor_pos, detail_level=0):
-    #     ...
+    def do_inspect(self, code, cursor_pos, detail_level=0):
+        try:
+            token, = re.findall(r"\b[a-z]\w*(?=\(?\Z)", code[:cursor_pos])
+        except ValueError:
+            help = ""
+        else:
+            help = self._engine.help(token)
+        return {"status": "ok",
+                "found": bool(help),
+                "data": {"text/plain": help},
+                "metadata": {}}
 
     def do_history(
             self, hist_access_type, output, raw, session=None, start=None,
