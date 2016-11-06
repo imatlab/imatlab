@@ -29,3 +29,9 @@ To use it, run one of::
 Note: This is a rewrite from scratch of the original `Calysto MATLAB Kernel
 <https://github.com/Calysto/matlab_kernel>`, which does not inherit from the
 Calysto MetaKernel anymore.
+
+Environment variables
+---------------------
+
+To connect to an existing, shared MATLAB session, set the ``CONNECT_MATLAB``
+environment variable to a non-empty value.

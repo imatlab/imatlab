@@ -1,5 +1,6 @@
 from contextlib import ExitStack
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -97,7 +98,9 @@ class MatlabKernel(Kernel):
                     _redirection.redirect(stream.fileno(), callback))
             self._atexit = stack.pop_all().close
 
-        self._engine = matlab.engine.start_matlab()
+        self._engine = (matlab.engine.connect_matlab()
+                        if os.environ.get("CONNECT_MATLAB")
+                        else matlab.engine.start_matlab())
         self._history = MatlabHistory(
             Path(self._engine.prefdir(), "History.xml"))
 
