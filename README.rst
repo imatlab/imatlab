@@ -11,10 +11,13 @@ with Python 3.5+, and the
 
 To install::
 
-    $ python -mpip install matlab_kernel
-    # or `python -mpip install git+https://github.com/anntzer/matlab_kernel`
-    # for the devel version.
+    $ python -mpip install git+https://github.com/anntzer/matlab_kernel
     $ python -m matlab_kernel install
+
+or::
+
+    $ python -mpip install --user git+https://github.com/anntzer/matlab_kernel
+    $ python -m matlab_kernel install --user
 
 To use it, run one of::
 

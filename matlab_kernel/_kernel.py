@@ -7,11 +7,21 @@ from tempfile import TemporaryDirectory
 import time
 from xml.etree import ElementTree as ET
 
+from ipykernel import kernelspec
 from ipykernel.kernelbase import Kernel
 import matlab.engine
 from matlab.engine import MatlabExecutionError
 
 from . import _redirection, __version__
+
+
+# Support `python -mmatlab_kernel install`.
+kernelspec.KERNEL_NAME = "matlab"
+kernelspec.get_kernel_dict = lambda extra_arguments=None: {
+    "argv": [sys.executable, "-m", "matlab_kernel", "-f", "{connection_file}"],
+    "display_name": "MATLAB",
+    "language": "matlab",
+}
 
 
 class MatlabHistory:
