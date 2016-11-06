@@ -135,10 +135,15 @@ class MatlabKernel(Kernel):
         #        ...]}
         # It's not clear whether "completionString" and "popupCompletion" are
         # ever different.
+        # Failing modes:
+        #   - "" -> ""
+        #   - "(" -> { "cannotComplete": true}
         info_s, = self._engine.eval(
             "cell(com.mathworks.jmi.MatlabMCR().mtGetCompletions('{}', {}))"
             .format(code[:cursor_pos], cursor_pos))
         info = json.loads(info_s)
+        if not info or info == {"cannotComplete": True}:
+            info = {"replacedString": "", "finalCompletions": []}
         return {"cursor_start": cursor_pos - len(info["replacedString"]),
                 "cursor_end": cursor_pos,
                 "matches": [entry["popupCompletion"]
