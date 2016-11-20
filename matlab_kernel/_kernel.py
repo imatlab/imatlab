@@ -98,9 +98,13 @@ class MatlabKernel(Kernel):
                     _redirection.redirect(stream.fileno(), callback))
             self._atexit = stack.pop_all().close
 
-        self._engine = (matlab.engine.connect_matlab()
-                        if os.environ.get("CONNECT_MATLAB")
-                        else matlab.engine.start_matlab())
+        if os.environ.get("CONNECT_MATLAB"):
+            self._engine = matlab.engine.connect_matlab()
+        else:
+            self._engine = matlab.engine.start_matlab()
+            # The debugger may have been set in startup.m, but it interacts
+            # poorly with the engine.
+            self._engine.eval("dbclear all", nargout=0)
         self._history = MatlabHistory(
             Path(self._engine.prefdir(), "History.xml"))
 
