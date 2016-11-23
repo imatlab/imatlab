@@ -69,11 +69,16 @@ class MatlabKernel(Kernel):
     implementation_version = __version__
     language = "matlab"
 
+    def _call(self, *args, nargout=1):
+        """Call a MATLAB function through `builtin` to bypass overloading.
+        """
+        return self._engine.builtin(*args, nargout=nargout)
+
     @property
     def language_info(self):
         return {
             "name": "matlab",
-            "version": self._engine.version(),
+            "version": self._call("version"),
             "mimetype": "text/x-matlab",
             "file_extension": ".m",
             "pygments_lexer": "matlab",
@@ -104,9 +109,9 @@ class MatlabKernel(Kernel):
             self._engine = matlab.engine.start_matlab()
             # The debugger may have been set in startup.m, but it interacts
             # poorly with the engine.
-            self._engine.eval("dbclear all", nargout=0)
+            self._call("dbclear", "all", nargout=0)
         self._history = MatlabHistory(
-            Path(self._engine.prefdir(), "History.xml"))
+            Path(self._call("prefdir"), "History.xml"))
 
     def __del__(self):
         self._atexit()
@@ -122,7 +127,7 @@ class MatlabKernel(Kernel):
         start = time.perf_counter()
 
         try:
-            self._engine.eval(code, nargout=0)
+            self._call("eval", code, nargout=0)
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
             status = "error"
 
@@ -155,7 +160,8 @@ class MatlabKernel(Kernel):
         # Failing modes:
         #   - "" -> ""
         #   - "(" -> { "cannotComplete": true}
-        info_s, = self._engine.eval(
+        info_s, = self._call(
+            "eval",
             "cell(com.mathworks.jmi.MatlabMCR().mtGetCompletions('{}', {}))"
             .format(code[:cursor_pos], cursor_pos))
         info = json.loads(info_s)
@@ -172,7 +178,7 @@ class MatlabKernel(Kernel):
         except ValueError:
             help = ""
         else:
-            help = self._engine.help(token)
+            help = self._call("help", token)
         return {"status": "ok",
                 "found": bool(help),
                 "data": {"text/plain": help},
@@ -186,15 +192,15 @@ class MatlabKernel(Kernel):
     def do_is_complete(self, code):
         with TemporaryDirectory() as tmpdir:
             Path(tmpdir, "test_complete.m").write_text(code)
-            self._engine.eval(
-                "try, pcode {} -inplace; catch, end".format(tmpdir),
-                nargout=0)
+            self._call("eval",
+                       "try, pcode {} -inplace; catch, end".format(tmpdir),
+                       nargout=0)
             if Path(tmpdir, "test_complete.p").exists():
                 return {"status": "complete"}
             else:
                 return {"status": "incomplete"}
 
     def do_shutdown(self, restart):
-        self._engine.exit()
+        self._call("exit")
         if restart:
             self._engine = matlab.engine.start_matlab()
