@@ -7,7 +7,7 @@ A Jupyter kernel for MATLAB
 
 This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_
 with Python 3.5+, and the
-`MATLAB engine for Python <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_ R2016b+.
+`MATLAB engine for Python <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_ R2016b+ (this release provides a much better completion API).
 
 To install::
 
@@ -35,3 +35,13 @@ Environment variables
 
 To connect to an existing, shared MATLAB session, set the ``CONNECT_MATLAB``
 environment variable to a non-empty value.
+
+Asynchronous output
+-------------------
+
+A construct such as ``1, pause(1), 2`` will output ``1`` and ``2`` with a one
+second interval on Linux and OSX, but together after a one second wait on
+Windows.  PRs improving Windows support are welcome.
+
+Asynchronous output using ``timer`` objects seem to be completely unsupported
+by the MATLAB engine for Python.

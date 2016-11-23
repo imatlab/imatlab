@@ -1,4 +1,5 @@
 from contextlib import ExitStack
+from io import StringIO
 import json
 import os
 from pathlib import Path
@@ -6,6 +7,7 @@ import re
 import sys
 from tempfile import TemporaryDirectory
 import time
+import weakref
 from xml.etree import ElementTree as ET
 
 from ipykernel import kernelspec
@@ -69,10 +71,10 @@ class MatlabKernel(Kernel):
     implementation_version = __version__
     language = "matlab"
 
-    def _call(self, *args, nargout=1):
+    def _call(self, *args, **kwargs):
         """Call a MATLAB function through `builtin` to bypass overloading.
         """
-        return self._engine.builtin(*args, nargout=nargout)
+        return self._engine.builtin(*args, **kwargs)
 
     @property
     def language_info(self):
@@ -89,19 +91,20 @@ class MatlabKernel(Kernel):
         super().__init__(*args, **kwargs)
         self._silent = False
 
-        with ExitStack() as stack:
-            for name in ["stdout", "stderr"]:
-                stream = getattr(sys, "__{}__".format(name))
-                def callback(data, *, _name=name, _stream=stream):
-                    if not self._silent:
-                        self.send_response(
-                            self.iopub_socket,
-                            "stream",
-                            {"name": _name,
-                             "text": data.decode(_stream.encoding)})
-                stack.enter_context(
-                    _redirection.redirect(stream.fileno(), callback))
-            self._atexit = stack.pop_all().close
+        if os.name == "posix":
+            with ExitStack() as stack:
+                for name in ["stdout", "stderr"]:
+                    stream = getattr(sys, "__{}__".format(name))
+                    def callback(data, *, _name=name, _stream=stream):
+                        if not self._silent:
+                            self.send_response(
+                                self.iopub_socket,
+                                "stream",
+                                {"name": _name,
+                                 "text": data.decode(_stream.encoding)})
+                    stack.enter_context(
+                        _redirection.redirect(stream.fileno(), callback))
+                weakref.finalize(self, stack.pop_all().close)
 
         if os.environ.get("CONNECT_MATLAB"):
             self._engine = matlab.engine.connect_matlab()
@@ -113,9 +116,6 @@ class MatlabKernel(Kernel):
         self._history = MatlabHistory(
             Path(self._call("prefdir"), "History.xml"))
 
-    def __del__(self):
-        self._atexit()
-
     def do_execute(
             self, code, silent, store_history=True,
             # Neither of these is supported.
@@ -126,10 +126,24 @@ class MatlabKernel(Kernel):
             self._silent = True
         start = time.perf_counter()
 
-        try:
-            self._call("eval", code, nargout=0)
-        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
-            status = "error"
+        if os.name == "posix":
+            try:
+                self._call("eval", code, nargout=0)
+            except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+                status = "error"
+        elif os.name == "nt":
+            try:
+                out = StringIO()
+                err = StringIO()
+                self._call("eval", code, nargout=0, stdout=out, stderr=err)
+            except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+                status = "error"
+            finally:
+                for name, buf in [("stdout", out), ("stderr", err)]:
+                    self.send_response(self.iopub_socket, "stream",
+                                       {"name": name, "text": buf.getvalue()})
+        else:
+            raise OSError("Unsupported OS")
 
         if store_history and code:  # Skip empty lines.
             elapsed = time.perf_counter() - start
