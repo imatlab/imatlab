@@ -6,8 +6,9 @@ A Jupyter kernel for MATLAB
 ===========================
 
 This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_
-with Python 3.5+, and the
-`MATLAB engine for Python <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_ R2016b+ (this release provides a much better completion API).
+with Python 3.5+, and the `MATLAB engine for Python
+<https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_
+R2016b+ (this release provides a much better completion API).
 
 To install::
 
@@ -27,8 +28,11 @@ To use it, run one of::
     $ jupyter console --kernel matlab
 
 Note: This is a rewrite from scratch of the original `Calysto MATLAB Kernel
-<https://github.com/Calysto/matlab_kernel>`, which does not inherit from the
-Calysto MetaKernel anymore.
+<https://github.com/Calysto/matlab_kernel>`_, which does not inherit from the
+Calysto MetaKernel anymore.  Unlike the original implementation, this kernel
+does not support inline graphics in the notebook -- the MATLAB Live Editor is
+probably more suited for this use case unless we somehow manage to embed the
+figure JFrame into the notebook.
 
 Environment variables
 ---------------------
