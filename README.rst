@@ -1,6 +1,7 @@
-|Python35|
+|Python35| |MATLAB2016b|
 
-.. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
+.. |Python35| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
+.. |MATLAB2016b| image:: https://img.shields.io/badge/MATLAB-2016b%2B-blue.svg
 
 A Jupyter kernel for MATLAB
 ===========================
