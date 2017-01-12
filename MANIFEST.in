@@ -1,2 +1,2 @@
 include versioneer.py
-include matlab_kernel/_version.py
+include imatlab/_version.py

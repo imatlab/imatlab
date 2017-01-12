@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "matlab_kernel-"
-    cfg.versionfile_source = "matlab_kernel/_version.py"
+    cfg.parentdir_prefix = "imatlab-"
+    cfg.versionfile_source = "imatlab/_version.py"
     cfg.verbose = False
     return cfg
 

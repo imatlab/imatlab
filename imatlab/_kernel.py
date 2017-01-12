@@ -18,10 +18,12 @@ from matlab.engine import MatlabExecutionError
 from . import _redirection, __version__
 
 
-# Support `python -mmatlab_kernel install`.
-kernelspec.KERNEL_NAME = "matlab"
+# Support `python -mimatlab install`.
+kernelspec.KERNEL_NAME = "imatlab"
 kernelspec.get_kernel_dict = lambda extra_arguments=None: {
-    "argv": [sys.executable, "-m", "matlab_kernel", "-f", "{connection_file}"],
+    "argv": [sys.executable,
+             "-m", __name__.split(".")[0],
+             "-f", "{connection_file}"],
     "display_name": "MATLAB",
     "language": "matlab",
 }
@@ -106,7 +108,7 @@ class MatlabKernel(Kernel):
                         _redirection.redirect(stream.fileno(), callback))
                 weakref.finalize(self, stack.pop_all().close)
 
-        if os.environ.get("CONNECT_MATLAB"):
+        if os.environ.get("IMATLAB_CONNECT"):
             self._engine = matlab.engine.connect_matlab()
         else:
             self._engine = matlab.engine.start_matlab()
