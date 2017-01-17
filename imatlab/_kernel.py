@@ -179,7 +179,7 @@ class MatlabKernel(Kernel):
         info_s, = self._call(
             "eval",
             "cell(com.mathworks.jmi.MatlabMCR().mtGetCompletions('{}', {}))"
-            .format(code[:cursor_pos], cursor_pos))
+            .format(code[:cursor_pos].replace("'", "''"), cursor_pos))
         info = json.loads(info_s)
         if not info or info == {"cannotComplete": True}:
             info = {"replacedString": "", "finalCompletions": []}
