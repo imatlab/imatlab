@@ -30,11 +30,13 @@ kernelspec.get_kernel_dict = lambda extra_arguments=None: {
 
 
 class MatlabHistory:
-    # Parsing of `History.xml` by MATLAB is ridiculously fragile...
+    # The MATLAB GUI relies on `History.xml` (which uses a ridiculously fragile
+    # parser); the command line (-nodesktop) interface on `history.m`.  We
+    # update both files.
 
-    def __init__(self, path):
-        self._path = path
-        self._et = ET.parse(str(path))
+    def __init__(self, prefdir):
+        self._prefdir = prefdir
+        self._et = ET.parse(str(prefdir / "History.xml"))
         root = self._et.getroot()
         self._session = ET.SubElement(root, "session")
         self._session.text = "\n"
@@ -58,10 +60,13 @@ class MatlabHistory:
         command.tail = "\n"
         last_session, last_line, _ = self._as_list[-1]
         self._as_list.append((last_session, last_line + 1, text))
-        with self._path.open("r+b") as file:
+        with (self._prefdir / "History.xml").open("r+b") as file:
             next(file)  # Skip the XML declaration, which is fragile.
             file.truncate()
             self._et.write(file, "utf-8", xml_declaration=False)
+        with (self._prefdir / "history.m").open("a") as file:
+            file.write(text)
+            file.write("\n")
 
     @property
     def as_list(self):
@@ -115,8 +120,7 @@ class MatlabKernel(Kernel):
             # The debugger may have been set in startup.m, but it interacts
             # poorly with the engine.
             self._call("dbclear", "all", nargout=0)
-        self._history = MatlabHistory(
-            Path(self._call("prefdir"), "History.xml"))
+        self._history = MatlabHistory(Path(self._call("prefdir")))
 
     def do_execute(
             self, code, silent, store_history=True,
