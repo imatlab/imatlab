@@ -13,7 +13,7 @@ from xml.etree import ElementTree as ET
 from ipykernel import kernelspec
 from ipykernel.kernelbase import Kernel
 import matlab.engine
-from matlab.engine import MatlabExecutionError
+from matlab.engine import EngineError, MatlabExecutionError
 
 from . import _redirection, __version__
 
@@ -113,6 +113,7 @@ class MatlabKernel(Kernel):
                         _redirection.redirect(stream.fileno(), callback))
                 weakref.finalize(self, stack.pop_all().close)
 
+        self._dead_engines = []
         if os.environ.get("IMATLAB_CONNECT"):
             self._engine = matlab.engine.connect_matlab()
         else:
@@ -137,6 +138,25 @@ class MatlabKernel(Kernel):
                 self._call("eval", code, nargout=0)
             except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
                 status = "error"
+            except EngineError as engine_error:
+                # Check whether the engine died.
+                try:
+                    self._call("eval", "1")
+                except EngineError:
+                    self.send_response(
+                        self.iopub_socket, "stream",
+                        {"name": "stderr",
+                         "text": "Please quit the front-end (Ctrl-D from the "
+                                 "console or qtconsole) to shut the kernel "
+                                 "down.\n"})
+                    # We don't want to GC the engines as that'll lead to an
+                    # attempt to close an already closed MATLAB during
+                    # `__del__`, which raises an uncatchable exception.  So
+                    # we just keep them around instead.
+                    self._dead_engines.append(self._engine)
+                    self._engine = matlab.engine.start_matlab()
+                else:
+                    raise engine_error
         elif os.name == "nt":
             try:
                 out = StringIO()
