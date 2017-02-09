@@ -21,4 +21,5 @@ if __name__ == "__main__":
           python_requires=">=3.5",
           install_requires=[
               "ipykernel>=4.1",  # Current version of --user install.
+              "matlabengineforpython",  # Not actually PyPI installable.
           ])

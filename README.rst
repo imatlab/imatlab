@@ -10,7 +10,8 @@ This kernel requires `Jupyter
 <http://jupyter.readthedocs.org/en/latest/install.html>`_
 with Python 3.5+, and the `MATLAB engine for Python
 <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_ R2016b+
-(this release provides a much better completion API).
+(this release provides a much better completion API), which needs to be
+installed first.
 
 Install with ``python -mpip install imatlab`` (from PyPI) or ``python -mpip
 install git+https://github.com/anntzer/imatlab`` (from Github); then run
