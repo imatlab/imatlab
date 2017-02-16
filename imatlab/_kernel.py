@@ -12,6 +12,8 @@ from xml.etree import ElementTree as ET
 
 from ipykernel import kernelspec
 from ipykernel.kernelbase import Kernel
+import IPython
+import plotly  # Must come before matlab.engine due to LD_PRELOAD tricks.
 import matlab.engine
 from matlab.engine import EngineError, MatlabExecutionError
 
@@ -171,6 +173,46 @@ class MatlabKernel(Kernel):
                                        {"name": name, "text": buf.getvalue()})
         else:
             raise OSError("Unsupported OS")
+
+        if (self._call("get", 0., "children")
+                and self._call("which", "fig2plotly")):
+            with TemporaryDirectory() as tmpdir:
+                cwd = self._call("cd")
+                # plotly always creates the file in the current directory, so
+                # we need to temporarily move there.
+                self._call(
+                    "eval", """
+                    builtin('cd', '{tmpdir}');
+                    builtin('arrayfun', @(h, i) ...
+                        fig2plotly(h, ...
+                            'filename', builtin('sprintf', '%i', i), ...
+                            'offline', true, ...
+                            'open', false), ...
+                        builtin('get', 0, 'children'), ...
+                        (1:builtin('numel', builtin('get', 0, 'children')))', ...
+                        'UniformOutput', false);
+                    builtin('arrayfun', @(h) close(h), get(0, 'children'));
+                    builtin('cd', '{cwd}');
+                    """.format(tmpdir=tmpdir.replace("'", "''"),
+                               cwd=cwd.replace("'", "''")),
+                    nargout=0)
+                # Hack into display routine (init_notebook_mode turns itself
+                # into a no-op after the first run so it's fine).
+                def publish_display_data(data, metadata):
+                    self.send_response(
+                        self.iopub_socket,
+                        "display_data",
+                        {"data": data, "metadata": metadata})
+                old_publish_display_data = (
+                    IPython.core.display.publish_display_data)
+                IPython.core.display.publish_display_data = (
+                    publish_display_data)
+                plotly.offline.init_notebook_mode()
+                IPython.core.display.publish_display_data = (
+                    old_publish_display_data)
+                for path in sorted(Path(tmpdir).iterdir(),
+                                   key=lambda path: int(path.stem)):
+                    publish_display_data({"text/html": path.read_text()}, {})
 
         if store_history and code:  # Skip empty lines.
             elapsed = time.perf_counter() - start

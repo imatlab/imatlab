@@ -22,8 +22,10 @@ if __name__ == "__main__":
           python_requires=">=3.5",
           install_requires=[
               "ipykernel>=4.1",  # Current version of --user install.
-              "nbconvert>=4.2",
-              "matlabengineforpython",  # Not actually PyPI installable.
+              "nbconvert>=4.2",  # Exporter API.
+              "plotly>=1.13.0",  # First version to test Py3.5.
+              "widgetsnbextension>=1.0",  # Anything works.
+              "matlabengineforpython>=R2016b",  # Not PyPI installable.
           ],
           entry_points = {
               "nbconvert.exporters": [

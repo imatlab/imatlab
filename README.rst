@@ -26,6 +26,10 @@ To use it, run one of::
     $ jupyter qtconsole --kernel imatlab
     $ jupyter console --kernel imatlab
 
+To use inline graphics in the notebook, please install `Plotly Offline for
+MATLAB <https://plot.ly/matlab/offline/>`_ (and make sure ``fig2plotly`` is
+available in your MATLAB path).
+
 Environment variables
 ---------------------
 
@@ -47,10 +51,9 @@ Differences with the Calysto MATLAB Kernel
 
 - The completion system is much more robust, by relying on the new API
   available in MATLAB 2016b.
-- History is read from and written to MATLAB's own `History.xml`, and thus
+- History is read from and written to MATLAB's own ``History.xml``, and thus
   shared with standard MATLAB sessions.
-- synchronous output is supported on Linux and OSX (see above).
+- Synchronous output is supported on Linux and OSX (see above).
 - No magics systems, as MATLAB already provides many functions for this purpose
-  (`cd`, `edit`, etc.).
-- No support for inline graphics in the notebook (see `discussion
-  <https://github.com/Calysto/matlab_kernel/issues/73>`_).
+  (``cd``, ``edit``, etc.).
+- Interactive inline graphics based on ``plotly``.
