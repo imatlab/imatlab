@@ -92,6 +92,7 @@ class MatlabKernel(Kernel):
             "file_extension": ".m",
             "pygments_lexer": "matlab",
             "codemirror_mode": "octave",
+            "nbconvert_exporter": "imatlab._exporter.MatlabExporter",
         }
 
     def __init__(self, *args, **kwargs):

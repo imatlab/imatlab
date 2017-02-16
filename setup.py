@@ -18,8 +18,15 @@ if __name__ == "__main__":
               "Topic :: System :: Shells",
           ],
           packages=find_packages(include=["imatlab", "imatlab.*"]),
+          package_data={"imatlab": ["templates/matlab.tpl"]},
           python_requires=">=3.5",
           install_requires=[
               "ipykernel>=4.1",  # Current version of --user install.
+              "nbconvert>=4.2",
               "matlabengineforpython",  # Not actually PyPI installable.
-          ])
+          ],
+          entry_points = {
+              "nbconvert.exporters": [
+                  "matlab = imatlab._exporter:MatlabExporter",
+              ],
+          })
