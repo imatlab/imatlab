@@ -101,6 +101,11 @@ class MatlabKernel(Kernel):
         super().__init__(*args, **kwargs)
         self._silent = False
 
+        # console, qtconsole uses `kernel-$pid`, notebook uses `kernel-$uuid`.
+        self._has_console_frontend = bool(re.match(
+            r"\Akernel-\d+\Z",
+            Path(self.config["IPKernelApp"]["connection_file"]).stem))
+
         if os.name == "posix":
             with ExitStack() as stack:
                 for name in ["stdout", "stderr"]:
@@ -174,7 +179,8 @@ class MatlabKernel(Kernel):
         else:
             raise OSError("Unsupported OS")
 
-        if (self._call("get", 0., "children")
+        if (not self._has_console_frontend
+                and self._call("get", 0., "children")
                 and self._call("which", "fig2plotly")):
             with TemporaryDirectory() as tmpdir:
                 cwd = self._call("cd")
@@ -261,7 +267,7 @@ class MatlabKernel(Kernel):
         except ValueError:
             help = ""
         else:
-            help = self._call("help", token)
+            help = self._engine.help(token)  # Not a builtin.
         return {"status": "ok",
                 "found": bool(help),
                 "data": {"text/plain": help},
