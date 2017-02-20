@@ -126,9 +126,6 @@ class MatlabKernel(Kernel):
             self._engine = matlab.engine.connect_matlab()
         else:
             self._engine = matlab.engine.start_matlab()
-            # The debugger may have been set in startup.m, but it interacts
-            # poorly with the engine.
-            self._call("dbclear", "all", nargout=0)
         self._history = MatlabHistory(Path(self._call("prefdir")))
 
     def do_execute(
@@ -140,6 +137,10 @@ class MatlabKernel(Kernel):
         if silent:
             self._silent = True
         start = time.perf_counter()
+
+        # The debugger may have been set e.g. in startup.m (or later), but it
+        # interacts poorly with the engine.
+        self._call("dbclear", "all", nargout=0)
 
         if os.name == "posix":
             try:

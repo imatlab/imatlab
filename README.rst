@@ -46,6 +46,12 @@ Windows.  PRs improving Windows support are welcome.
 Asynchronous output using ``timer`` objects seem to be completely unsupported
 by the MATLAB engine for Python.
 
+MATLAB debugger
+---------------
+
+The MATLAB debugger is cleared (``dbclear all``) before each execution, as
+interactive input is not supported by the engine API.
+
 Differences with the Calysto MATLAB Kernel
 ------------------------------------------
 
@@ -54,6 +60,6 @@ Differences with the Calysto MATLAB Kernel
 - History is read from and written to MATLAB's own ``History.xml``, and thus
   shared with standard MATLAB sessions.
 - Synchronous output is supported on Linux and OSX (see above).
-- No magics systems, as MATLAB already provides many functions for this purpose
-  (``cd``, ``edit``, etc.).
-- Interactive inline graphics based on ``plotly``.
+- There is no magics systems, as MATLAB already provides many functions for
+  this purpose (``cd``, ``edit``, etc.).
+- Inline graphics are based on ``plotly``, and thus interactive.
