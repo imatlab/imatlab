@@ -34,7 +34,13 @@ Environment variables
 ---------------------
 
 To connect to an existing, shared MATLAB session, set the ``IMATLAB_CONNECT``
-environment variable to a non-empty value.
+environment variable to a non-empty value.  If that value is a valid MATLAB
+identifier (... or a keyword), the kernel will connect to the engine with that
+name.
+
+``IMATLAB_CONNECT`` may take the form ``$engine_name:cd``, in which case the
+engine's working directory will be changed to match the kernel's working
+directory.
 
 Asynchronous output
 -------------------

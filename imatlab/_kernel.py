@@ -87,6 +87,9 @@ class MatlabKernel(Kernel):
 
     @property
     def language_info(self):
+        # We also hook this property to `cd` into the current directory.
+        if "cd" in self._options:
+            self._call("cd", str(Path().resolve()))
         return {
             "name": "matlab",
             "version": self._call("version"),
@@ -122,8 +125,13 @@ class MatlabKernel(Kernel):
                 weakref.finalize(self, stack.pop_all().close)
 
         self._dead_engines = []
-        if os.environ.get("IMATLAB_CONNECT"):
-            self._engine = matlab.engine.connect_matlab()
+        engine_name, *self._options = (
+            os.environ.get("IMATLAB_CONNECT", "").split(":"))
+        if engine_name:
+            if re.match(r"\A(?a)[a-zA-Z]\w*\Z", engine_name):
+                self._engine = matlab.engine.connect_matlab(engine_name)
+            else:
+                self._engine = matlab.engine.connect_matlab()
         else:
             self._engine = matlab.engine.start_matlab()
         self._history = MatlabHistory(Path(self._call("prefdir")))
