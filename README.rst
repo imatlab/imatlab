@@ -64,7 +64,11 @@ Differences with the Calysto MATLAB Kernel
 - The completion system is much more robust, by relying on the new API
   available in MATLAB 2016b.
 - History is read from and written to MATLAB's own ``History.xml``, and thus
-  shared with standard MATLAB sessions.
+  shared with standard MATLAB sessions.  Note that if the file does not exist
+  (e.g. if the **don't save history file** option is set, or in a console-only
+  setup), history not be reloaded into later sessions.  (A PR for loading
+  ``history.m`` instead would be welcome; it would need to properly parse
+  multiline inputs in that file.)
 - Synchronous output is supported on Linux and OSX (see above).
 - There is no magics systems, as MATLAB already provides many functions for
   this purpose (``cd``, ``edit``, etc.).

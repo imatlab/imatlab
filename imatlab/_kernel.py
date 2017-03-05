@@ -33,39 +33,44 @@ kernelspec.get_kernel_dict = lambda extra_arguments=None: {
 
 class MatlabHistory:
     # The MATLAB GUI relies on `History.xml` (which uses a ridiculously fragile
-    # parser); the command line (-nodesktop) interface on `history.m`.  We
-    # update both files.
+    # parser); the command line (-nodesktop) interface on `history.m`.  We read
+    # the former but update both files.
 
     def __init__(self, prefdir):
         self._prefdir = prefdir
-        self._et = ET.parse(str(prefdir / "History.xml"))
-        root = self._et.getroot()
-        self._session = ET.SubElement(root, "session")
-        self._session.text = "\n"
-        self._session.tail = "\n"
-        command = ET.SubElement(
-            self._session, "command",
-            {"time_stamp": format(int(time.time() * 1000), "x")})
-        command.text = time.strftime("%%-- %m/%d/%Y %I:%M:%S %p --%%")
-        command.tail = "\n"
-        self._as_list = [
-            (session_number, line_number, elem.text)
-            for session_number, session in enumerate(list(root), 1)
-            for line_number, elem in enumerate(session, 1)]
+        self._as_list = []
+        try:
+            self._et = ET.parse(str(prefdir / "History.xml"))
+            root = self._et.getroot()
+            self._session = ET.SubElement(root, "session")
+            self._session.text = "\n"
+            self._session.tail = "\n"
+            command = ET.SubElement(
+                self._session, "command",
+                {"time_stamp": format(int(time.time() * 1000), "x")})
+            command.text = time.strftime("%%-- %m/%d/%Y %I:%M:%S %p --%%")
+            command.tail = "\n"
+            self._as_list.extend(
+                (session_number, line_number, elem.text)
+                for session_number, session in enumerate(list(root), 1)
+                for line_number, elem in enumerate(session, 1))
+        except FileNotFoundError:
+            self._et = self._session = None
 
     def append(self, text, elapsed, success):
-        command = ET.SubElement(
-            self._session, "command",
-            {"execution_time": str(int(elapsed * 1000)),
-             **({} if success else {"error": "true"})})
-        command.text = text
-        command.tail = "\n"
-        last_session, last_line, _ = self._as_list[-1]
-        self._as_list.append((last_session, last_line + 1, text))
-        with (self._prefdir / "History.xml").open("r+b") as file:
-            next(file)  # Skip the XML declaration, which is fragile.
-            file.truncate()
-            self._et.write(file, "utf-8", xml_declaration=False)
+        if self._et is not None:
+            command = ET.SubElement(
+                self._session, "command",
+                {"execution_time": str(int(elapsed * 1000)),
+                **({} if success else {"error": "true"})})
+            command.text = text
+            command.tail = "\n"
+            last_session, last_line, _ = self._as_list[-1]
+            self._as_list.append((last_session, last_line + 1, text))
+            with (self._prefdir / "History.xml").open("r+b") as file:
+                next(file)  # Skip the XML declaration, which is fragile.
+                file.truncate()
+                self._et.write(file, "utf-8", xml_declaration=False)
         with (self._prefdir / "history.m").open("a") as file:
             file.write(text)
             file.write("\n")
