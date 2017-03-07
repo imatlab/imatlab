@@ -13,11 +13,13 @@ with Python 3.5+, and the `MATLAB engine for Python
 (this release provides a much better completion API), which needs to be
 installed first.
 
-Install with ``python -mpip install imatlab`` (from PyPI) or ``python -mpip
+Install with ``pip install imatlab`` (from PyPI) or ``pip
 install git+https://github.com/anntzer/imatlab`` (from Github); then run
-``python -mimatlab install`` to register the kernel spec.  In the absence of
-administrator rights, the ``--user`` flag should be added to any of these
-commands.
+``python -m imatlab install`` to register the kernel spec.  In the absence of 
+administrator rights, the ``--user`` flag may be added to any of these commands.
+If installing into a virtualenv, use the ``--sys-prefix`` flag in the python 
+module install command.
+
 
 To use it, run one of::
 
