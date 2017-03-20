@@ -30,12 +30,17 @@ To use it, run one of::
 Inline Graphics
 ---------------------
 
-To use Plotly inline graphics in the notebook, the `Plotly MATLAB API <https://plot.ly/matlab>`_  must be installed.
+To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
+<https://plot.ly/matlab>`_ must be installed.
 
-1. Clone `plotly/MATLAB-Online <https://github.com/plotly/MATLAB-Online>`_ or download the `zip <https://github.com/plotly/MATLAB-api/archive/master.zip>`_.
-2. Recursively add the resulting extracted folders to the matlab path: ``addpath(genpath(<Plotly MATLAB API path>))``.
-3. In matlab, run: ``getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js')`` to copy the javascript.
-4. Set the ``IMATLAB_EXPORT_FIG`` environment variable to use ``fig2plotly`` as described below.
+1. Clone `plotly/MATLAB-Online <https://github.com/plotly/MATLAB-Online>`_ or
+   download the `zip <https://github.com/plotly/MATLAB-api/archive/master.zip>`_.
+2. Recursively add the resulting extracted folders to the MATLAB path:
+   ``addpath(genpath(<Plotly MATLAB API path>))``.
+3. In MATLAB, run: ``getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js')``
+   to copy the javascript files.
+4. Set the ``IMATLAB_EXPORT_FIG`` environment variable to use ``fig2plotly`` as
+   described below.
 
 
 Environment variables
