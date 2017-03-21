@@ -1,4 +1,5 @@
 from contextlib import ExitStack
+from functools import lru_cache
 from io import StringIO
 import json
 import os
@@ -210,28 +211,25 @@ class MatlabKernel(Kernel):
     def _export_figures(self):
         if self._has_console_frontend:
             return
-        nfig = len(self._call("get", 0., "children"))
-        if not nfig:
+        if not len(self._call("get", 0., "children")):
             return
         exporter = self._call("getenv", "IMATLAB_EXPORT_FIG")
         if not exporter:
+            return
+        if not self.do_is_complete(exporter)["status"] == "complete":
+            self._send_stream(
+                "stderr", "IMATLAB_EXPORT_FIG does not define a function.")
             return
         with TemporaryDirectory() as tmpdir:
             cwd = self._call("cd")
             try:
                 self._call("cd", tmpdir)
-                for idx in range(nfig):
-                    self._call(
-                        "eval",
-                        "builtin("
-                            "'feval', "
-                            "{exporter}, "
-                            "builtin("
-                                "'feval', "
-                                "@(t)t({idx}), "
-                                "builtin('get', 0, 'children')))"
-                        .format(exporter=exporter, idx=idx + 1),
-                        nargout=0)
+                self._call(
+                    "eval",
+                    "builtin('arrayfun', {}, builtin('get', 0, 'children'), "
+                            "'UniformOutput', false)"
+                    .format(exporter),
+                    nargout=0)
             finally:
                 self._call("cd", cwd)
             for path in sorted(Path(tmpdir).iterdir(),
@@ -309,6 +307,7 @@ class MatlabKernel(Kernel):
             stop=None, n=None, pattern=None, unique=False):
         return {"history": self._history.as_list}
 
+    @lru_cache()
     def do_is_complete(self, code):
         with TemporaryDirectory() as tmpdir:
             Path(tmpdir, "test_complete.m").write_text(code)
