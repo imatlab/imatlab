@@ -26,21 +26,69 @@ To use it, run one of::
     $ jupyter qtconsole --kernel imatlab
     $ jupyter console --kernel imatlab
 
-To use inline graphics in the notebook, please install `Plotly Offline for
-MATLAB <https://plot.ly/matlab/offline/>`_ (and make sure ``fig2plotly`` is
-available in your MATLAB path).
+
+Inline Graphics
+---------------------
+
+To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
+<https://plot.ly/matlab>`_ must be installed.
+
+1. Clone `plotly/MATLAB-Online <https://github.com/plotly/MATLAB-Online>`_ or
+   download the `zip <https://github.com/plotly/MATLAB-api/archive/master.zip>`_.
+2. Recursively add the resulting extracted folders to the MATLAB path:
+   ``addpath(genpath(<Plotly MATLAB API path>))``.
+3. In MATLAB, run: ``getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js')``
+   to copy the javascript files.
+4. Set the ``IMATLAB_EXPORT_FIG`` environment variable to use ``fig2plotly`` as
+   described below.
+
 
 Environment variables
 ---------------------
 
-To connect to an existing, shared MATLAB session, set the ``IMATLAB_CONNECT``
-environment variable to a non-empty value.  If that value is a valid MATLAB
-identifier (... or a keyword), the kernel will connect to the engine with that
-name.
+``IMATLAB_CONNECT``
+   If this environment variable is set to a valid MATLAB identifier, the kernel
+   will attempt to connect to the shared engine with that name.  If it is set
+   to another non-empty value, it will connect to any existing shared engine.
 
-``IMATLAB_CONNECT`` may take the form ``$engine_name:cd``, in which case the
-engine's working directory will be changed to match the kernel's working
-directory.
+``IMATLAB_CD``
+   If this environment variable is set, the engine's working directory will be
+   changed to match the kernel's working directory.
+
+``IMATLAB_EXPORT_FIG``
+   This environment variable can be set to a MATLAB expression, representing
+   a function of one argument (either a quoted function name, or a function
+   handle).  If it is, and the current frontend is a notebook, then, after
+   each input is evaluated, the given function is evaluated for each figure
+   handle, while the current folder is changed to a temporary folder.  Any
+   ``.html``, ``.png`` or ``.jpeg`` file that is created is displayed using
+   IPython's ``display_data`` mechanism (``.html`` files will also trigger the
+   initialization of ``plotly``’s notebook mode.).
+
+   For example, set (e.g., from MATLAB, in ``startup.m``)::
+
+      setenv('IMATLAB_EXPORT_FIG', func2str(@(h) eval([ ...
+         'fig2plotly(h, ''filename'', [tempname(''.''), ''.html''], ', ...
+                       '''offline'', true, ''open'', false); ', ...
+         'close(h);'])));
+
+   to export figures as html with plotly; or set::
+
+     setenv('IMATLAB_EXPORT_FIG', func2str(@(h) eval([ ...
+         'print(h, [tempname(''.''), ''.png''], ''-dpng'')', ...
+         'close(h);'])));
+
+   to export figures as static png files.
+
+   Note the use of ``eval`` to squeeze in two statements in the function handle
+   (export the figure, and close it).
+
+   It may be helpful to wrap such settings in your own helper functions.
+
+``IMATLAB_CONNECT`` needs to be set outside of MATLAB (as it is checked before
+the connection to the engine is made).  Other environment variables can be set
+either outside of MATLAB (before starting the kernel) or from within MATLAB
+(using ``setenv``).
 
 Asynchronous output
 -------------------
@@ -72,4 +120,4 @@ Differences with the Calysto MATLAB Kernel
 - Synchronous output is supported on Linux and OSX (see above).
 - There is no magics systems, as MATLAB already provides many functions for
   this purpose (``cd``, ``edit``, etc.).
-- Inline graphics are based on ``plotly``, and thus interactive.
+- Inline graphics can be based on ``plotly``, and thus interactive.
