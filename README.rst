@@ -65,20 +65,19 @@ Environment variables
    IPython's ``display_data`` mechanism (``.html`` files will also trigger the
    initialization of ``plotly``’s notebook mode.).
 
-   For example, set (e.g., from MATLAB, in ``startup.m``)::
+   For example, to export inline figures as html with plotly, 
+   set (e.g., from MATLAB, in ``startup.m``)::
 
       setenv('IMATLAB_EXPORT_FIG', func2str(@(h) eval([ ...
          'fig2plotly(h, ''filename'', [tempname(''.''), ''.html''], ', ...
                        '''offline'', true, ''open'', false); ', ...
          'close(h);'])));
 
-   to export figures as html with plotly; or set::
+   or to export figures as inline static png files set::
 
      setenv('IMATLAB_EXPORT_FIG', func2str(@(h) eval([ ...
-         'print(h, [tempname(''.''), ''.png''], ''-dpng'')', ...
+         'print(h, [tempname(''.''), ''.png''], ''-dpng'');', ...
          'close(h);'])));
-
-   to export figures as static png files.
 
    Note the use of ``eval`` to squeeze in two statements in the function handle
    (export the figure, and close it).
