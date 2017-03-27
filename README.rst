@@ -14,7 +14,7 @@ with Python 3.5+, and the `MATLAB engine for Python
 installed first.
 
 Install with ``python -mpip install imatlab`` (from PyPI) or ``python -mpip
-install git+https://github.com/anntzer/imatlab`` (from Github); then run
+install git+https://github.com/imatlab/imatlab`` (from Github); then run
 ``python -mimatlab install`` to register the kernel spec.  In the absence of
 administrator rights, the ``--user`` flag should be added to any of these
 commands.

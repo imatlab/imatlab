@@ -7,7 +7,7 @@ if __name__ == "__main__":
           author="Antony Lee",
           version=versioneer.get_version(),
           cmdclass=versioneer.get_cmdclass(),
-          url="https://github.com/anntzer/imatlab",
+          url="https://github.com/imatlab/imatlab",
           license="BSD",
           long_description=open("README.rst").read(),
           classifiers=[
