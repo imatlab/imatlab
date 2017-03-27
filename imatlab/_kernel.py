@@ -312,11 +312,20 @@ class MatlabKernel(Kernel):
     @lru_cache()
     def do_is_complete(self, code):
         with TemporaryDirectory() as tmpdir:
-            Path(tmpdir, "test_complete.m").write_text(code)
+            path = Path(tmpdir, "test_complete.m")
+            path.write_text(code)
+            errs = self._engine.eval(
+                "feval(@(e) {{e.message}}, checkcode('-m2', '{}'))"
+                .format(str(path).replace("'", "''")))
+            # 'Invalid syntax': unmatched brackets.
+            # 'Parse error': unmatched keywords.
+            if any(err.startswith(("Invalid syntax at",
+                                   "Parse error at")) for err in errs):
+                return {"status": "invalid"}
             self._call("eval",
                        "try, pcode {} -inplace; catch, end".format(tmpdir),
                        nargout=0)
-            if Path(tmpdir, "test_complete.p").exists():
+            if path.with_suffix(".p").exists():
                 return {"status": "complete"}
             else:
                 return {"status": "incomplete"}
