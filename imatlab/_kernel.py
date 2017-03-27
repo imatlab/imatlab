@@ -145,9 +145,11 @@ class MatlabKernel(Kernel):
                            {"name": stream, "text": text})
 
     def _send_display_data(self, data, metadata):
+        # ZMQDisplayPublisher normally handles the conversion of `None`
+        # metadata to {}.
         self.send_response(self.iopub_socket,
                            "display_data",
-                           {"data": data, "metadata": metadata})
+                           {"data": data, "metadata": metadata or {}})
 
     def do_execute(
             self, code, silent, store_history=True,
