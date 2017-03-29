@@ -322,13 +322,23 @@ class MatlabKernel(Kernel):
             if any(err.startswith(("Invalid syntax at",
                                    "Parse error at")) for err in errs):
                 return {"status": "invalid"}
-            self._call("eval",
-                       "try, pcode {} -inplace; catch, end".format(tmpdir),
-                       nargout=0)
-            if path.with_suffix(".p").exists():
-                return {"status": "complete"}
-            else:
+            # `mtree` returns a single node tree on parse error (but not
+            # otherwise -- empty inputs give no nodes, expressions give two
+            # nodes).  Given that we already excluded (some) errors earlier,
+            # this likely means incomplete code.
+            # Using the (non-documented) `mtree` works better than checking
+            # whether `pcode` successfully generates code as `pcode` refuses
+            # to generate code for classdefs with a name not matching the file
+            # name, whereas we actually want to report `classdef foo, end` to
+            # be reported as complete (so that MATLAB errors at evaluation).
+            incomplete = self._call(
+                "eval",
+                "builtin('numel', mtree('{}', '-file').indices) == 1"
+                .format(str(path).replace("'", "''")))
+            if incomplete:
                 return {"status": "incomplete"}
+            else:
+                return {"status": "complete"}
 
     def do_shutdown(self, restart):
         self._call("exit")
