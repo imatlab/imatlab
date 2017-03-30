@@ -12,7 +12,7 @@ class MatlabExporter(TemplateExporter):
 
     @default("template_path")
     def _template_path_default(self):
-        return [str(Path(__file__).with_name("templates"))]
+        return [str(Path(__file__).with_name("resources"))]
 
     @default("template_file")
     def _template_file_default(self):

@@ -1,5 +1,4 @@
 from contextlib import ExitStack
-from functools import lru_cache
 from io import StringIO
 import json
 import os
@@ -138,6 +137,10 @@ class MatlabKernel(Kernel):
         else:
             self._engine = matlab.engine.start_matlab()
         self._history = MatlabHistory(Path(self._call("prefdir")))
+        self._engine.addpath(
+            str(Path(sys.modules[__name__.split(".")[0]].__file__).
+                with_name("resources")),
+            "-end")
 
     def _send_stream(self, stream, text):
         self.send_response(self.iopub_socket,
@@ -211,31 +214,18 @@ class MatlabKernel(Kernel):
                 "execution_count": self.execution_count}
 
     def _export_figures(self):
-        if self._has_console_frontend:
-            return
-        if not len(self._call("get", 0., "children")):
-            return
-        exporter = self._call("getenv", "IMATLAB_EXPORT_FIG")
-        if not exporter:
-            return
-        if not self.do_is_complete(exporter)["status"] == "complete":
-            self._send_stream(
-                "stderr", "IMATLAB_EXPORT_FIG does not define a function.")
+        if (self._has_console_frontend
+                or not len(self._call("get", 0., "children"))
+                or not self._call("which", "imatlab_export_fig")):
             return
         with TemporaryDirectory() as tmpdir:
             cwd = self._call("cd")
             try:
                 self._call("cd", tmpdir)
-                self._call(
-                    "eval",
-                    "builtin('arrayfun', {}, builtin('get', 0, 'children'), "
-                            "'UniformOutput', false)"
-                    .format(exporter),
-                    nargout=0)
+                exported = self._engine.imatlab_export_fig()
             finally:
                 self._call("cd", cwd)
-            for path in sorted(Path(tmpdir).iterdir(),
-                               key=lambda path: path.stat().st_ctime):
+            for path in map(Path(tmpdir).joinpath, exported):
                 if path.suffix.lower() == ".html":
                     self._plotly_init_notebook_mode()
                     self._send_display_data(
@@ -245,7 +235,7 @@ class MatlabKernel(Kernel):
                         ipykernel.jsonutil.encode_images(
                             {"image/png": path.read_bytes()}),
                         {})
-                elif path.suffix.lower() == ".jpeg":
+                elif path.suffix.lower() in [".jpeg", ".jpg"]:
                     self._send_display_data(
                         ipykernel.jsonutil.encode_images(
                             {"image/jpeg": path.read_bytes()}),
@@ -309,12 +299,12 @@ class MatlabKernel(Kernel):
             stop=None, n=None, pattern=None, unique=False):
         return {"history": self._history.as_list}
 
-    @lru_cache()
     def do_is_complete(self, code):
         with TemporaryDirectory() as tmpdir:
             path = Path(tmpdir, "test_complete.m")
             path.write_text(code)
-            errs = self._engine.eval(
+            errs = self._call(
+                "eval",
                 "feval(@(e) {{e.message}}, checkcode('-m2', '{}'))"
                 .format(str(path).replace("'", "''")))
             # 'Invalid syntax': unmatched brackets.

@@ -18,7 +18,8 @@ if __name__ == "__main__":
               "Topic :: System :: Shells",
           ],
           packages=find_packages(include=["imatlab", "imatlab.*"]),
-          package_data={"imatlab": ["templates/matlab.tpl"]},
+          package_data={"imatlab": ["resources/imatlab_export_fig.m",
+                                    "resources/matlab.tpl"]},
           python_requires=">=3.5",
           install_requires=[
               "ipykernel>=4.1",  # Current version of --user install.
