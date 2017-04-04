@@ -45,6 +45,10 @@ Other valid values for the exporter (which do not rely on Plotly) are
 ``'print-png'`` and ``'print-jpeg'``, which create static images in the
 respective formats.
 
+The default size of exported figures, as well as whether to display figures
+before exporting them, should be set using standard figure properties (``set(0,
+'defaultpaperposition', [left, bottom, width, height])``, etc.).
+
 For further customization, you may override the ``imatlab_export_fig`` function
 (the default version is provided by ``imatlab`` and added to the MATLAB path).
 This function is called with no arguments after each notebook cell is executed,
