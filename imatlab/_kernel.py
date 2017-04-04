@@ -210,8 +210,17 @@ class MatlabKernel(Kernel):
             self._history.append(code, elapsed, status == "ok")
         self._silent = False
 
-        return {"status": status,
-                "execution_count": self.execution_count}
+        if status == "ok":
+            return {"status": status,
+                    "execution_count": self.execution_count,
+                    "payload": [],
+                    "user_expressions": {}}
+        elif status == "error":  # The mechanism is Python-specific.
+            return {"status": status,
+                    "execution_count": self.execution_count,
+                    "ename": "",
+                    "evalue": "",
+                    "traceback": []}
 
     def _export_figures(self):
         if (self._has_console_frontend
@@ -277,7 +286,8 @@ class MatlabKernel(Kernel):
         info = json.loads(info_s)
         if not info or info == {"cannotComplete": True}:
             info = {"replacedString": "", "finalCompletions": []}
-        return {"cursor_start": cursor_pos - len(info["replacedString"]),
+        return {"status": "ok",
+                "cursor_start": cursor_pos - len(info["replacedString"]),
                 "cursor_end": cursor_pos,
                 "matches": [entry["popupCompletion"]
                             for entry in info["finalCompletions"]]}
@@ -326,7 +336,8 @@ class MatlabKernel(Kernel):
                 "builtin('numel', mtree('{}', '-file').indices) == 1"
                 .format(str(path).replace("'", "''")))
             if incomplete:
-                return {"status": "incomplete"}
+                return {"status": "incomplete",
+                        "indent": ""}  # FIXME
             else:
                 return {"status": "complete"}
 

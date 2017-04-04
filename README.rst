@@ -106,3 +106,8 @@ Differences with the Calysto MATLAB Kernel
 - There is no magics systems, as MATLAB already provides many functions for
   this purpose (``cd``, ``edit``, etc.).
 - Inline graphics can be based on ``plotly``, and thus interactive.
+
+Tests
+-----
+
+Run tests with ``python -munittest`` after installing the kernel.
