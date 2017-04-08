@@ -1,6 +1,6 @@
 |Python35| |MATLAB2016b|
 
-.. |Python35| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
+.. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
 .. |MATLAB2016b| image:: https://img.shields.io/badge/MATLAB-2016b%2B-blue.svg
 
 A Jupyter kernel for MATLAB
@@ -8,7 +8,7 @@ A Jupyter kernel for MATLAB
 
 This kernel requires `Jupyter
 <http://jupyter.readthedocs.org/en/latest/install.html>`_
-with Python 3.5+, and the `MATLAB engine for Python
+with Python 3.5, and the `MATLAB engine for Python
 <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_ R2016b+
 (this release provides a much better completion API), which needs to be
 installed first.
