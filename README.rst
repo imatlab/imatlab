@@ -19,7 +19,9 @@ install git+https://github.com/imatlab/imatlab`` (from Github); then run
 administrator rights, the ``--user`` flag should be added to any of these
 commands.
 
-To use it, run one of::
+To use it, run one of:
+
+.. code:: sh
 
     $ jupyter notebook
     # In the notebook interface, select Matlab from the 'New' menu
@@ -31,23 +33,31 @@ Inline Graphics
 ---------------
 
 To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
-<https://plot.ly/matlab>`_ must be installed.
+<https://plot.ly/matlab>`_ must be installed, as follows:
 
 1. Clone `plotly/MATLAB-Online <https://github.com/plotly/MATLAB-Online>`_ or
    download the `zip <https://github.com/plotly/MATLAB-api/archive/master.zip>`_.
-2. Recursively add the resulting extracted folders to the MATLAB path:
-   ``addpath(genpath(<Plotly MATLAB API path>))``.
-3. In MATLAB, run: ``getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js')``
-   to copy the JavaScript files.
-4. Call ``imatlab_export_fig('fig2plotly')`` at the beginning of the notebook.
+2. Recursively add the resulting extracted folders to the MATLAB search path
+   using ``addpath(genpath(<Plotly MATLAB API path>));``.  Either put such a
+   call in your ``startup.m``, or then call ``savepath;`` to save the path.
+3. In MATLAB, copy the required JavaScript files and initialize the
+   credentials:
 
-Other valid values for the exporter (which do not rely on Plotly) are
-``'print-png'`` and ``'print-jpeg'``, which create static images in the
-respective formats.
+.. code:: matlab
+
+      getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js');
+      try, signin; catch, saveplotlycredentials('', ''); end;
+
+At the beginning of each notebook, you may then call
+``imatlab_export_fig('fig2plotly');`` to use automatically Plotly inline
+graphics (no further calls to the Plotly API are required -- ignore the output
+of ``getplotlyoffline`` here).  Other valid values for the exporter (which do
+not rely on Plotly) are ``'print-png'`` and ``'print-jpeg'``, which create
+static images in the respective formats.
 
 The default size of exported figures, as well as whether to display figures
 before exporting them, should be set using standard figure properties (``set(0,
-'defaultpaperposition', [left, bottom, width, height])``, etc.).
+'defaultpaperposition', [left, bottom, width, height]);``, etc.).
 
 For further customization, you may override the ``imatlab_export_fig`` function
 (the default version is provided by ``imatlab`` and added to the MATLAB path).
