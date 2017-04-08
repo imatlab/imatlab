@@ -38,8 +38,13 @@ To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
 2. Recursively add the resulting extracted folders to the MATLAB path:
    ``addpath(genpath(<Plotly MATLAB API path>))``.
 3. In MATLAB, run: ``getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js')``
-   to copy the JavaScript files.
-4. Call ``imatlab_export_fig('fig2plotly')`` at the beginning of the notebook.
+   to copy the JavaScript files. (Console output from this step is
+   not relevant. It is not necessary to invoke `fig2plotly` for `imatlab`.")
+4. For Windows OS, unless plotly credentials are already installed, in MATLAB
+   run: `saveplotlycredentials('','')`.
+
+Now that Plotly is installed, simply call ``imatlab_export_fig('fig2plotly')``
+at the beginning of a notebook and it will be set as the exporter.
 
 Other valid values for the exporter (which do not rely on Plotly) are
 ``'print-png'`` and ``'print-jpeg'``, which create static images in the
