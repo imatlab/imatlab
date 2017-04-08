@@ -9,6 +9,7 @@ if __name__ == "__main__":
           cmdclass=versioneer.get_cmdclass(),
           url="https://github.com/imatlab/imatlab",
           license="BSD",
+          description="A Juyter kernel for MATLAB.",
           long_description=open("README.rst").read(),
           classifiers=[
               "Framework :: IPython",
