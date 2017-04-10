@@ -33,7 +33,7 @@ Inline Graphics
 ---------------
 
 To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
-<https://plot.ly/matlab>`_ must be installed, as follows:
+<https://plot.ly/matlab>`_ (>=2.2.7) must be installed, as follows:
 
 1. Clone `plotly/MATLAB-Online <https://github.com/plotly/MATLAB-Online>`_ or
    download the `zip <https://github.com/plotly/MATLAB-api/archive/master.zip>`_.
