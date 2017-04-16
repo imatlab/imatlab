@@ -43,8 +43,13 @@ function exported = imatlab_export_fig(exporter)
             for i = 1:numel(children)
                 name = tempname('.');
                 exported{i} = [name, '.html'];
-                fig2plotly(children(i), 'filename', name, ...
-                           'offline', true, 'open', false);
+                try
+                    fig2plotly(children(i), 'filename', name, ...
+                               'offline', true, 'open', false);
+                catch me
+                    warning('fig2plotly failed to export a figure');
+                    rethrow(me);
+                end
                 close(children(i));
             end
         case 'print-jpeg'
