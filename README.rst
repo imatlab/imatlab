@@ -109,7 +109,7 @@ Differences with the Calysto MATLAB Kernel
 - History is read from and written to MATLAB's own ``History.xml``, and thus
   shared with standard MATLAB sessions.  Note that if the file does not exist
   (e.g. if the **don't save history file** option is set, or in a console-only
-  setup), history not be reloaded into later sessions.  (A PR for loading
+  setup), history will not be reloaded into later sessions.  (A PR for loading
   ``history.m`` instead would be welcome; it would need to properly parse
   multiline inputs in that file.)
 - Synchronous output is supported on Linux and OSX (see above).
