@@ -23,10 +23,10 @@ To use it, run one of:
 
 .. code:: sh
 
-    $ jupyter notebook
-    # In the notebook interface, select Matlab from the 'New' menu
-    $ jupyter qtconsole --kernel imatlab
-    $ jupyter console --kernel imatlab
+   $ jupyter notebook
+   # In the notebook interface, select Matlab from the 'New' menu
+   $ jupyter qtconsole --kernel imatlab
+   $ jupyter console --kernel imatlab
 
 
 Inline Graphics
@@ -43,10 +43,13 @@ To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
 3. In MATLAB, copy the required JavaScript files and initialize the
    credentials:
 
-.. code:: matlab
+   .. code:: matlab
 
       getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js');
       try, signin; catch, saveplotlycredentials('', ''); end;
+
+   (If your version of MATLAB uses an old OpenSSL, you may need to use HTTP
+   instead of HTTPS.)
 
 At the beginning of each notebook, you may then call
 ``imatlab_export_fig('fig2plotly');`` to use automatically Plotly inline
