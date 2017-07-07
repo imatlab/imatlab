@@ -57,7 +57,8 @@ function exported = imatlab_export_fig(exporter)
             for i = 1:numel(children)
                 name = tempname('.');
                 exported{i} = [name, '.jpg'];
-                print(children(i), name, '-djpeg');
+                % Use screen resolution.
+                print(children(i), name, '-djpeg', '-r0');
                 close(children(i));
             end
         case 'print-png'
@@ -65,7 +66,8 @@ function exported = imatlab_export_fig(exporter)
             for i = 1:numel(children)
                 name = tempname('.');
                 exported{i} = [name, '.png'];
-                print(children(i), exported{i}, '-dpng');
+                % Use screen resolution.
+                print(children(i), exported{i}, '-dpng', '-r0');
                 close(children(i));
             end
         end
