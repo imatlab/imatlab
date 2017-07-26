@@ -246,9 +246,19 @@ class MatlabKernel(Kernel):
                 self._call("cd", cwd)
             for path in map(Path(tmpdir).joinpath, exported):
                 if path.suffix.lower() == ".html":
-                    self._plotly_init_notebook_mode()
-                    self._send_display_data(
-                        {"text/html": path.read_text()}, {})
+                    # https://github.com/jupyter/notebook/issues/2287
+                    # Delay import, as this is not a dependency otherwise.
+                    import notebook
+                    if notebook.__version__ == "5.0.0":
+                        self._send_stream(
+                            "stderr",
+                            "Plotly output is not supported with "
+                            "notebook==5.0.0.  Please update to a newer "
+                            "version.")
+                    else:
+                        self._plotly_init_notebook_mode()
+                        self._send_display_data(
+                            {"text/html": path.read_text()}, {})
                 elif path.suffix.lower() == ".png":
                     self._send_display_data(
                         ipykernel.jsonutil.encode_images(
