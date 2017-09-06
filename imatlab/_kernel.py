@@ -7,6 +7,7 @@ import re
 import sys
 from tempfile import TemporaryDirectory
 import time
+import uuid
 import weakref
 from xml.etree import ElementTree as ET
 
@@ -168,9 +169,18 @@ class MatlabKernel(Kernel):
         # interacts poorly with the engine.
         self._call("dbclear", "all", nargout=0)
 
+        # Don't include the "Error using eval" before each output.
+        # This does not distinguish between `x` and `eval('x')` (with `x`
+        # undefined), so a better solution would be preferred.
+        try_code = (
+            "try, {code}\n"   # Newline needed as code may end with a comment.
+            r"catch {me}, fprintf('%s\n', {me}.message); clear {me}; end;"
+            .format(code=code,
+                    me="ME{}".format(str(uuid.uuid4()).replace("-", ""))))
+
         if os.name == "posix":
             try:
-                self._call("eval", code, nargout=0)
+                self._call("eval", try_code, nargout=0)
             except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
                 status = "error"
             except EngineError as engine_error:
@@ -194,7 +204,7 @@ class MatlabKernel(Kernel):
             try:
                 out = StringIO()
                 err = StringIO()
-                self._call("eval", code, nargout=0, stdout=out, stderr=err)
+                self._call("eval", try_code, nargout=0, stdout=out, stderr=err)
             except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
                 status = "error"
             finally:
