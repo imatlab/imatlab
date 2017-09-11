@@ -262,8 +262,7 @@ class MatlabKernel(Kernel):
                         {})
 
     def _plotly_init_notebook_mode(self):
-        # Hack into display routine (init_notebook_mode turns itself into a
-        # no-op after the first run so it's fine).
+        # Hack into display routine.
         old_send_display_data = IPython.core.display.publish_display_data
         IPython.core.display.publish_display_data = self._send_display_data
         plotly.offline.init_notebook_mode()
