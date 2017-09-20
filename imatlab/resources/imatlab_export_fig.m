@@ -17,6 +17,11 @@ function exported = imatlab_export_fig(exporter)
     valid_exporters = {'', 'fig2plotly', 'print-png', 'print-jpeg'};
 
     if exist('exporter', 'var')
+        if strcmp(exporter, '')
+            set(0, 'defaultfigurevisible', 'on');
+        else
+            set(0, 'defaultfigurevisible', 'off');
+        end
         if any(strcmp(exporter, valid_exporters))
             if strcmp(exporter, 'fig2plotly')
                 version_delta = ...

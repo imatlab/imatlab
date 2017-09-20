@@ -50,9 +50,10 @@ following settings are possible:
    imatlab_export_fig('print-png')  % Static png figures.
    imatlab_export_fig('print-jpeg')  % Static jpeg figures.
 
-This call must be issued before the first figure is shown.  You may also want
-to add a call to ``set(0, 'defaultfigurevisible', 'off')'`` to prevent the
-the figure from popping up transiently.
+This call must be issued before the first figure is shown.  Note that the
+non-native exporters will call ``set(0, 'defaultfigurevisible', 'off')`` to
+prevent the window from being briefly displayed, whereas using native windows
+turns the default figure visibility back ``'on'``.
 
 Plotly exporter
 ```````````````
