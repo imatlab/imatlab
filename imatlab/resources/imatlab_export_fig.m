@@ -14,7 +14,7 @@ function exported = imatlab_export_fig(exporter)
     if isempty(set_exporter)
         set_exporter = '';
     end
-    valid_exporters = {'', 'fig2plotly', 'print-jpeg', 'print-png'};
+    valid_exporters = {'', 'fig2plotly', 'print-png', 'print-jpeg'};
 
     if exist('exporter', 'var')
         if any(strcmp(exporter, valid_exporters))
@@ -52,15 +52,6 @@ function exported = imatlab_export_fig(exporter)
                 end
                 close(children(i));
             end
-        case 'print-jpeg'
-            exported = cell(1, numel(children));
-            for i = 1:numel(children)
-                name = tempname('.');
-                exported{i} = [name, '.jpg'];
-                % Use screen resolution.
-                print(children(i), name, '-djpeg', '-r0');
-                close(children(i));
-            end
         case 'print-png'
             exported = cell(1, numel(children));
             for i = 1:numel(children)
@@ -68,6 +59,15 @@ function exported = imatlab_export_fig(exporter)
                 exported{i} = [name, '.png'];
                 % Use screen resolution.
                 print(children(i), exported{i}, '-dpng', '-r0');
+                close(children(i));
+            end
+        case 'print-jpeg'
+            exported = cell(1, numel(children));
+            for i = 1:numel(children)
+                name = tempname('.');
+                exported{i} = [name, '.jpg'];
+                % Use screen resolution.
+                print(children(i), name, '-djpeg', '-r0');
                 close(children(i));
             end
         end

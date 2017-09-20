@@ -6,6 +6,8 @@
 A Jupyter kernel for MATLAB
 ===========================
 
+.. contents:: :local:
+
 This kernel requires `Jupyter
 <http://jupyter.readthedocs.org/en/latest/install.html>`_
 with Python 3.5+, and the `MATLAB engine for Python
@@ -29,9 +31,31 @@ To use it, run one of:
    $ jupyter qtconsole --kernel imatlab
    $ jupyter console --kernel imatlab
 
-
 Inline Graphics
 ---------------
+
+MATLAB figures can be displayed in native MATLAB windows (the default), or
+(when using the notebook) as inline images.  The kernel can natively display
+static images, or use `Plotly <https://plot.ly/>`_ to generate interactive
+JavaScript figures.
+
+The exporter is set by calling the ``imatlab_export_fig`` function, which is
+automatically added to the MATLAB path when the kernel is running.  The
+following settings are possible:
+
+.. code:: matlab
+
+   imatlab_export_fig('')  % Native windows.
+   imatlab_export_fig('fig2plotly')  % Plotly figures.
+   imatlab_export_fig('print-png')  % Static png figures.
+   imatlab_export_fig('print-jpeg')  % Static jpeg figures.
+
+This call must be issued before the first figure is shown.  You may also want
+to add a call to ``set(0, 'defaultfigurevisible', 'off')'`` to prevent the
+the figure from popping up transiently.
+
+Plotly exporter
+```````````````
 
 To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
 <https://plot.ly/matlab>`_ (>=2.2.7) must be installed, as follows:
@@ -53,15 +77,21 @@ To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
    instead of HTTPS.)
 
 At the beginning of each notebook, you may then call
-``imatlab_export_fig('fig2plotly');`` to use automatically Plotly inline
-graphics (no further calls to the Plotly API are required -- ignore the output
-of ``getplotlyoffline`` here).  Other valid values for the exporter (which do
-not rely on Plotly) are ``'print-png'`` and ``'print-jpeg'``, which create
-static images in the respective formats.
+``imatlab_export_fig('fig2plotly')`` to use automatically Plotly inline
+graphics (no further calls to the Plotly API are required; in particular,
+ignore the output from ``getplotlyoffline``).
+
+Static exporters
+````````````````
+
+The static exporters (png and jpeg) do not required additional dependencies.
 
 The default size of exported figures, as well as whether to display figures
 before exporting them, should be set using standard figure properties (``set(0,
 'defaultpaperposition', [left, bottom, width, height]);``, etc.).
+
+Custom exporters
+````````````````
 
 For further customization, you may override the ``imatlab_export_fig`` function
 (the default version is provided by ``imatlab`` and added to the MATLAB path).
@@ -70,7 +100,6 @@ while the current directory is temporarily switched to a temporary folder; this
 function should return a cell array of filenames with ``.html``, ``.png``, or
 ``.jpg``/``.jpeg`` extension.  The corresponding files, which should have been
 created by the function, will be loaded into the notebook.
-
 
 Environment variables
 ---------------------
@@ -124,4 +153,5 @@ Differences with the Calysto MATLAB Kernel
 Tests
 -----
 
-Run tests with ``python -munittest`` after installing the kernel.
+Run tests with ``python -munittest`` after installing the kernel and
+`jupyter_kernel_test <https://pypi.python.org/pypi/jupyter_kernel_test>`_.
