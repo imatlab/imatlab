@@ -1,4 +1,4 @@
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from io import StringIO
 import json
 import os
@@ -14,6 +14,7 @@ from xml.etree import ElementTree as ET
 import ipykernel.jsonutil, ipykernel.kernelspec
 from ipykernel.kernelbase import Kernel
 import IPython
+from IPython.core.interactiveshell import InteractiveShell
 import plotly  # Must come before matlab.engine due to LD_PRELOAD tricks.
 import matlab.engine
 from matlab.engine import EngineError, MatlabExecutionError
@@ -30,6 +31,16 @@ ipykernel.kernelspec.get_kernel_dict = lambda extra_arguments=None: {
     "display_name": "MATLAB",
     "language": "matlab",
 }
+
+
+@contextmanager
+def patch_attr(obj, attr, value):
+    try:
+        old = getattr(obj, attr)
+        setattr(obj, attr, value)
+        yield
+    finally:
+        setattr(obj, attr, old)
 
 
 class MatlabHistory:
@@ -271,11 +282,12 @@ class MatlabKernel(Kernel):
                         {})
 
     def _plotly_init_notebook_mode(self):
-        # Hack into display routine.
-        old_send_display_data = IPython.core.display.publish_display_data
-        IPython.core.display.publish_display_data = self._send_display_data
-        plotly.offline.init_notebook_mode()
-        IPython.core.display.publish_display_data = old_send_display_data
+        # Hack into display routine.  Also pretend that the InteractiveShell is
+        # initialized as display() is otherwise turned into a no-op.
+        with patch_attr(IPython.core.display, "publish_display_data",
+                        self._send_display_data), \
+                patch_attr(InteractiveShell, "initialized", lambda: True):
+            plotly.offline.init_notebook_mode()
 
     def do_complete(self, code, cursor_pos):
         # The following API is only present since MATLAB2016b:
