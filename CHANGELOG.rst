@@ -1,3 +1,11 @@
+v0.3
+====
+
+- When an error occurs, don't display the outermost error from `eval`.
+- Clarify message when errors come from plotly.
+- Drop support for Jupyter 5.0 (requires workarounds); fix support for IPython
+  6.2.
+
 v0.2
 ====
 
