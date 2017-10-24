@@ -8,7 +8,7 @@ class IMatlabTests(jkt.KernelTests):
     kernel_name = "imatlab"
     language_name = "matlab"
     file_extension = ".m"
-    code_hello_world = "fprintf('hello, world')"
+    code_hello_world = "fprintf('hello, world') % some comment"
     code_stderr = "fprintf(2, 'oops')"
     completion_samples = [
         {"text": "matlabroo", "matches": ["matlabroot"]},
