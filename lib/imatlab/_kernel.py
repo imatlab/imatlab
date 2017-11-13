@@ -373,6 +373,6 @@ class MatlabKernel(Kernel):
                 return {"status": "complete"}
 
     def do_shutdown(self, restart):
-        self._call("exit")
+        self._call("exit", nargout=0)
         if restart:
             self._engine = matlab.engine.start_matlab()
