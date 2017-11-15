@@ -8,13 +8,13 @@ A Jupyter kernel for MATLAB
 
 .. contents:: :local:
 
-This kernel requires `Jupyter
-<http://jupyter.readthedocs.org/en/latest/install.html>`_
-with Python 3.5+, and the `MATLAB engine for Python
-<https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_ R2016b+
-(this release provides a much better completion API), which needs to be
-installed first.  Note that additionally, Python versions not supported by the
-engine are likewise not supported by the kernel.
+This kernel requires Jupyter_ with Python 3.5+, and the `MATLAB engine for
+Python`_ R2016b+ (this release provides a much better completion API), which
+needs to be installed first.  Note that additionally, Python versions not
+supported by the engine are likewise not supported by the kernel.
+
+.. _Jupyter: http://jupyter.readthedocs.org/en/latest/install.html
+.. _MATLAB engine for Python: https://www.mathworks.com/help/matlab/matlab-engine-for-python.html
 
 Install with ``python -mpip install imatlab`` (from PyPI) or ``python -mpip
 install git+https://github.com/imatlab/imatlab`` (from Github); then run
@@ -36,8 +36,10 @@ Inline Graphics
 
 MATLAB figures can be displayed in native MATLAB windows (the default), or
 (when using the notebook) as inline images.  The kernel can natively display
-static images, or use `Plotly <https://plot.ly/>`_ to generate interactive
+static images, or use Plotly_ to generate interactive
 JavaScript figures.
+
+.. _Plotly: https://plot.ly/
 
 The exporter is set by calling the ``imatlab_export_fig`` function, which is
 automatically added to the MATLAB path when the kernel is running.  The
@@ -58,11 +60,12 @@ turns the default figure visibility back ``'on'``.
 Plotly exporter
 ```````````````
 
-To use Plotly inline graphics in the notebook, the `Plotly MATLAB API
-<https://plot.ly/matlab>`_ (>=2.2.7) must be installed, as follows:
+To use Plotly inline graphics in the notebook, the `Plotly MATLAB API`_
+(>=2.2.7) must be installed, as follows:
 
-1. Clone `plotly/MATLAB-Online <https://github.com/plotly/MATLAB-Online>`_ or
-   download the `zip <https://github.com/plotly/MATLAB-api/archive/master.zip>`_.
+.. _Plotly MATLAB API: https://plot.ly/matlab
+
+1. Clone `plotly/MATLAB-Online`_ or download it as a `zip file`_.
 2. Recursively add the resulting extracted folders to the MATLAB search path
    using ``addpath(genpath(<Plotly MATLAB API path>));``.  Either put such a
    call in your ``startup.m``, or then call ``savepath;`` to save the path.
@@ -81,6 +84,9 @@ At the beginning of each notebook, you may then call
 ``imatlab_export_fig('fig2plotly')`` to use automatically Plotly inline
 graphics (no further calls to the Plotly API are required; in particular,
 ignore the output from ``getplotlyoffline``).
+
+.. _plotly/MATLAB-Online: https://github.com/plotly/MATLAB-Online
+.. _zip file: https://github.com/plotly/MATLAB-api/archive/master.zip
 
 Static exporters
 ````````````````
@@ -154,5 +160,8 @@ Differences with the Calysto MATLAB Kernel
 Tests
 -----
 
-Run tests with ``python -munittest`` after installing the kernel and
-`jupyter_kernel_test <https://pypi.python.org/pypi/jupyter_kernel_test>`_.
+Run tests with ``python -munittest`` or pytest_ after installing the kernel and
+jupyter_kernel_test_.
+
+.. _pytest: https://pytest.org
+.. _jupyter_kernel_test: https://pypi.python.org/pypi/jupyter_kernel_test
