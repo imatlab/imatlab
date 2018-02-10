@@ -1,3 +1,4 @@
+import base64
 from contextlib import ExitStack
 from io import StringIO
 import json
@@ -12,7 +13,7 @@ import uuid
 import weakref
 from xml.etree import ElementTree as ET
 
-import ipykernel.jsonutil, ipykernel.kernelspec
+import ipykernel.kernelspec
 from ipykernel.kernelbase import Kernel
 import IPython
 from IPython.core.interactiveshell import InteractiveShell
@@ -263,13 +264,13 @@ class MatlabKernel(Kernel):
                             {"text/html": path.read_text()}, {})
                 elif path.suffix.lower() == ".png":
                     self._send_display_data(
-                        ipykernel.jsonutil.encode_images(
-                            {"image/png": path.read_bytes()}),
+                        {"image/png":
+                         base64.b64encode(path.read_bytes()).decode("ascii")},
                         {})
                 elif path.suffix.lower() in [".jpeg", ".jpg"]:
                     self._send_display_data(
-                        ipykernel.jsonutil.encode_images(
-                            {"image/jpeg": path.read_bytes()}),
+                        {"image/jpeg":
+                         base64.b64encode(path.read_bytes()).decode("ascii")},
                         {})
 
     def _plotly_init_notebook_mode(self):
