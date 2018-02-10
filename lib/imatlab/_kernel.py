@@ -1,4 +1,4 @@
-from contextlib import ExitStack, contextmanager
+from contextlib import ExitStack
 from io import StringIO
 import json
 import os
@@ -7,6 +7,7 @@ import re
 import sys
 from tempfile import TemporaryDirectory
 import time
+from unittest.mock import patch
 import uuid
 import weakref
 from xml.etree import ElementTree as ET
@@ -31,16 +32,6 @@ ipykernel.kernelspec.get_kernel_dict = lambda extra_arguments=None: {
     "display_name": "MATLAB",
     "language": "matlab",
 }
-
-
-@contextmanager
-def patch_attr(obj, attr, value):
-    try:
-        old = getattr(obj, attr)
-        setattr(obj, attr, value)
-        yield
-    finally:
-        setattr(obj, attr, old)
 
 
 class MatlabHistory:
@@ -284,9 +275,10 @@ class MatlabKernel(Kernel):
     def _plotly_init_notebook_mode(self):
         # Hack into display routine.  Also pretend that the InteractiveShell is
         # initialized as display() is otherwise turned into a no-op.
-        with patch_attr(IPython.core.display, "publish_display_data",
-                        self._send_display_data), \
-                patch_attr(InteractiveShell, "initialized", lambda: True):
+        with patch.multiple(IPython.core.display,
+                            publish_display_data=self._send_display_data), \
+             patch.multiple(InteractiveShell,
+                            initialized=lambda: True):
             plotly.offline.init_notebook_mode()
 
     def do_complete(self, code, cursor_pos):
