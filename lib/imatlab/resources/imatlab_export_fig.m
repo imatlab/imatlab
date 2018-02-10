@@ -7,8 +7,8 @@ function exported = imatlab_export_fig(exporter)
     %     sets the current exporter.
     %
     %   exported = IMATLAB_EXPORT_FIG
-    %     exports the current figures, closes them, and returns a cell array of
-    %     exported filenames.
+    %     orders the current figures by number, exports and closes them, and
+    %     returns a cell array of exported filenames.
 
     persistent set_exporter
     if isempty(set_exporter)
@@ -40,6 +40,8 @@ function exported = imatlab_export_fig(exporter)
         end
     else
         children = get(0, 'children');
+        [~, idx] = sort([children.Number]);
+        children = children(idx);
         switch set_exporter
         case ''
             exported = {};
