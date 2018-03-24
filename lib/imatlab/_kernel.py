@@ -300,6 +300,9 @@ class MatlabKernel(Kernel):
         #        ...]}
         # It's not clear whether "completionString" and "popupCompletion" are
         # ever different.
+        # It is the presence of "replacedString" (or "offset") which makes
+        # this API preferable to the older mtFindAllTabCompletions (used by
+        # matlab_kernel).
         # Failing modes:
         #   - "" -> ""
         #   - "(" -> { "cannotComplete": true}
