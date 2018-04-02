@@ -5,11 +5,13 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import time
 from unittest.mock import patch
 import uuid
+import warnings
 import weakref
 from xml.etree import ElementTree as ET
 
@@ -17,9 +19,28 @@ import ipykernel.kernelspec
 from ipykernel.kernelbase import Kernel
 import IPython
 from IPython.core.interactiveshell import InteractiveShell
-import plotly  # Must come before matlab.engine due to LD_PRELOAD tricks.
-import matlab.engine
-from matlab.engine import EngineError, MatlabExecutionError
+
+# Work around LD_PRELOAD tricks played by MATLAB by looking for a working
+# import order.
+if subprocess.call(
+        [sys.executable, "-c", "import plotly, matlab.engine"],
+        stderr=subprocess.DEVNULL) == 0:
+    import plotly
+    import matlab.engine
+    from matlab.engine import EngineError, MatlabExecutionError
+elif subprocess.call(
+        [sys.executable, "-c", "import matlab.engine, plotly"],
+        stderr=subprocess.DEVNULL) == 0:
+    import matlab.engine
+    from matlab.engine import EngineError, MatlabExecutionError
+    import plotly
+else:
+    import matlab.engine
+    from matlab.engine import EngineError, MatlabExecutionError
+    plotly = None
+    warnings.warn(
+        "Failed to import both matlab.engine and plotly in the same process; "
+        "plotly output is unavailable.")
 
 from . import _redirection, __version__
 
@@ -258,6 +279,12 @@ class MatlabKernel(Kernel):
                             "Plotly output is not supported with "
                             "notebook==5.0.0.  Please update to a newer "
                             "version.")
+                    elif not plotly:
+                        self._send_stream(
+                            "stderr",
+                            "Failed to import both matlab.engine and plotly "
+                            "in the same process; plotly output is "
+                            "unavailable.")
                     else:
                         self._plotly_init_notebook_mode()
                         self._send_display_data(
