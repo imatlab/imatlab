@@ -16,22 +16,34 @@ supported by the engine are likewise not supported by the kernel.
 .. _Jupyter: http://jupyter.readthedocs.org/en/latest/install.html
 .. _MATLAB engine for Python: https://www.mathworks.com/help/matlab/matlab-engine-for-python.html
 
-Install with ``python -mpip install imatlab`` (from PyPI) or ``python -mpip
-install git+https://github.com/imatlab/imatlab`` (from Github); then run
-``python -mimatlab install`` to register the kernel spec.  In the absence of
-administrator rights, the ``--user`` flag should be added to any of these
-commands.
-
-To use it, run one of:
+Installation
+------------
 
 .. code:: sh
 
+   # Install from PyPI:
+   $ python -mpip install imatlab
+   # or from Github:
+   $ python -mpip install git+https://github.com/imatlab/imatlab
+   # In either case, the kernelspec needs to be registered with:
+   $ python -mimatlab install
+
+In the absence of administrator rights, the ``--user`` flag should be added to
+all of these commands.
+
+Use
+---
+
+.. code:: sh
+
+   # Notebook (in the notebook interface, select Matlab from the 'New' menu):
    $ jupyter notebook
-   # In the notebook interface, select Matlab from the 'New' menu
+   # or QtConsole:
    $ jupyter qtconsole --kernel imatlab
+   # or terminal:
    $ jupyter console --kernel imatlab
 
-Inline Graphics
+Inline graphics
 ---------------
 
 MATLAB figures can be displayed in native MATLAB windows (the default), or

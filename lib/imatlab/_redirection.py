@@ -1,4 +1,5 @@
-"""Capture of C-level stdout/stderr.
+"""
+Capture of C-level stdout/stderr.
 
 Inspired from https://github.com/minrk/wurlitzer, but using sockets in order to
 support Windows.
