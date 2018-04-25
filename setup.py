@@ -1,7 +1,8 @@
+import glob
 from setuptools import setup, find_packages
 
 DATA_FILES = [
-    ('share/jupyter/kernels/imatlab/', [ 'kernel.json' ]),
+    ('share/jupyter/kernels/imatlab/', [ 'kernel.json' ] + glob.glob('*.png')),
 ]
 
 setup(
