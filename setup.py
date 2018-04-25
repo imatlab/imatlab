@@ -1,5 +1,9 @@
+import glob
 from setuptools import setup, find_packages
 
+DATA_FILES = [
+    ('share/jupyter/kernels/imatlab/', [ 'kernel.json' ] + glob.glob('*.png')),
+]
 
 setup(
     name="imatlab",
@@ -19,6 +23,8 @@ setup(
     package_dir={"": "lib"},
     package_data={"imatlab": ["resources/imatlab_export_fig.m",
                               "resources/matlab.tpl"]},
+    include_package_data=True,
+    data_files=DATA_FILES,
     python_requires=">=3.5",
     setup_requires=["setuptools_scm"],
     use_scm_version=lambda: {  # xref __init__.py

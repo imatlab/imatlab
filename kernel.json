@@ -1,0 +1,8 @@
+{
+    "argv": [
+        "python", "-m", "imatlab", "-f", "{connection_file}"],
+    "display_name": "iMatlab",
+    "language": "matlab",
+    "mimetype": "text/x-octave",
+    "name": "imatlab"
+}
