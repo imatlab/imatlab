@@ -10,7 +10,7 @@ setup(
     description="A Juyter kernel for MATLAB.",
     long_description=open("README.rst", encoding="utf-8").read(),
     author="Antony Lee",
-    url="https://github.com/djoshea/imatlab",
+    url="https://github.com/imatlab/imatlab",
     license="MIT",
     classifiers=[
         "Framework :: IPython",
