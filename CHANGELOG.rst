@@ -1,3 +1,9 @@
+v0.4
+====
+
+- Improved exception reporting.
+- Heuristic workaround for MATLAB setting LD_PRELOAD.
+
 v0.3
 ====
 

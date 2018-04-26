@@ -198,7 +198,7 @@ class MatlabKernel(Kernel):
         # undefined), so a better solution would be preferred.
         try_code = (
             "try, {code}\n"   # Newline needed as code may end with a comment.
-            r"catch {me}, fprintf('%s\n', {me}.message); clear {me}; end;"
+            r"catch {me}, fprintf('%s\n', {me}.getReport); clear {me}; end;"
             .format(code=code,
                     me="ME{}".format(str(uuid.uuid4()).replace("-", ""))))
 
