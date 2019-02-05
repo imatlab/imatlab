@@ -3,7 +3,7 @@ function exported = imatlab_export_fig(exporter)
     %
     %   IMATLAB_EXPORT_FIG(exporter)
     %     where exporter is one of
-    %       {'', 'fig2plotly', 'print-jpeg', 'print-png'}
+    %       {'', 'fig2plotly', 'print-png', 'print-svg', 'print-jpeg'}
     %     sets the current exporter.
     %
     %   exported = IMATLAB_EXPORT_FIG
@@ -14,7 +14,8 @@ function exported = imatlab_export_fig(exporter)
     if isempty(set_exporter)
         set_exporter = '';
     end
-    valid_exporters = {'', 'fig2plotly', 'print-png', 'print-jpeg'};
+    valid_exporters = { ...
+        '', 'fig2plotly', 'print-png', 'print-svg', 'print-jpeg'};
 
     if exist('exporter', 'var')
         if strcmp(exporter, '')
@@ -68,13 +69,22 @@ function exported = imatlab_export_fig(exporter)
                 print(children(i), exported{i}, '-dpng', '-r0');
                 close(children(i));
             end
+        case 'print-svg'
+            exported = cell(1, numel(children));
+            for i = 1:numel(children)
+                name = tempname('.');
+                exported{i} = [name, '.svg'];
+                % Use screen resolution.
+                print(children(i), exported{i}, '-dsvg', '-r0');
+                close(children(i));
+            end
         case 'print-jpeg'
             exported = cell(1, numel(children));
             for i = 1:numel(children)
                 name = tempname('.');
-                exported{i} = [name, '.jpg'];
+                exported{i} = [name, '.jpeg'];
                 % Use screen resolution.
-                print(children(i), name, '-djpeg', '-r0');
+                print(children(i), exported{i}, '-djpeg', '-r0');
                 close(children(i));
             end
         end

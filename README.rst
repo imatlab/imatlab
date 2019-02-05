@@ -69,6 +69,7 @@ following settings are possible:
    imatlab_export_fig('')  % Native windows.
    imatlab_export_fig('fig2plotly')  % Plotly figures.
    imatlab_export_fig('print-png')  % Static png figures.
+   imatlab_export_fig('print-svg')  % Static svg figures.
    imatlab_export_fig('print-jpeg')  % Static jpeg figures.
 
 This call must be issued before the first figure is shown.  Note that the
@@ -110,7 +111,8 @@ ignore the output from ``getplotlyoffline``).
 Static exporters
 ````````````````
 
-The static exporters (png and jpeg) do not required additional dependencies.
+The static exporters (png, svg, and jpeg) do not required additional
+dependencies.
 
 The default size of exported figures, as well as whether to display figures
 before exporting them, should be set using standard figure properties (``set(0,

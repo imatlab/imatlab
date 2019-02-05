@@ -294,10 +294,15 @@ class MatlabKernel(Kernel):
                         {"image/png":
                          base64.b64encode(path.read_bytes()).decode("ascii")},
                         {})
-                elif path.suffix.lower() in [".jpeg", ".jpg"]:
+                elif path.suffix.lower() in ".jpeg":
                     self._send_display_data(
                         {"image/jpeg":
                          base64.b64encode(path.read_bytes()).decode("ascii")},
+                        {})
+                elif path.suffix.lower() == ".svg":
+                    self._send_display_data(
+                        # Probably should read the encoding from the file.
+                        {"image/svg+xml": path.read_text(encoding="ascii")},
                         {})
 
     def _plotly_init_notebook_mode(self):
