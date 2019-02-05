@@ -1,10 +1,13 @@
-|Python35| |MATLAB2016b|
+A Jupyter kernel for MATLAB
+===========================
+
+|Python35| |MATLAB2016b| |PyPI|
 
 .. |Python35| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
 .. |MATLAB2016b| image:: https://img.shields.io/badge/MATLAB-2016b%2B-blue.svg
-
-A Jupyter kernel for MATLAB
-===========================
+.. |PyPI|
+   image:: https://img.shields.io/pypi/v/imatlab.svg
+   :target: https://pypi.python.org/pypi/imatlab
 
 .. contents:: :local:
 
@@ -19,13 +22,17 @@ supported by the engine are likewise not supported by the kernel.
 Installation
 ------------
 
+As usual, install using pip:
+
+.. code-block:: sh
+
+   $ pip install imatlab  # from PyPI
+   $ pip install git+https://github.com/imatlab/imatlab  # from Github
+
+Then, register the kernelspec with
+
 .. code:: sh
 
-   # Install from PyPI:
-   $ python -mpip install imatlab
-   # or from Github:
-   $ python -mpip install git+https://github.com/imatlab/imatlab
-   # In either case, the kernelspec needs to be registered with:
    $ python -mimatlab install
 
 In the absence of administrator rights, the ``--user`` flag should be added to
