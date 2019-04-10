@@ -33,7 +33,7 @@ setup(
         "widgetsnbextension>=1.0",  # Anything works.
         "matlabengineforpython>=R2016b",  # Not PyPI installable.
     ],
-    entry_points = {
+    entry_points={
         "nbconvert.exporters": [
             "matlab = imatlab._exporter:MatlabExporter",
         ],

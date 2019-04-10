@@ -87,7 +87,7 @@ class MatlabHistory:
             command = ET.SubElement(
                 self._session, "command",
                 {"execution_time": str(int(elapsed * 1000)),
-                **({} if success else {"error": "true"})})
+                 **({} if success else {"error": "true"})})
             command.text = text
             command.tail = "\n"
             last_session, last_line, _ = self._as_list[-1]
@@ -245,16 +245,20 @@ class MatlabKernel(Kernel):
         self._silent = False
 
         if status == "ok":
-            return {"status": status,
-                    "execution_count": self.execution_count,
-                    "payload": [],
-                    "user_expressions": {}}
+            return {
+                "status": status,
+                "execution_count": self.execution_count,
+                "payload": [],
+                "user_expressions": {},
+            }
         elif status == "error":  # The mechanism is Python-specific.
-            return {"status": status,
-                    "execution_count": self.execution_count,
-                    "ename": "",
-                    "evalue": "",
-                    "traceback": []}
+            return {
+                "status": status,
+                "execution_count": self.execution_count,
+                "ename": "",
+                "evalue": "",
+                "traceback": [],
+            }
 
     def _export_figures(self):
         if (self._has_console_frontend
@@ -345,12 +349,14 @@ class MatlabKernel(Kernel):
         info = json.loads(info_s)
         if not info or info == {"cannotComplete": True}:
             info = {"replacedString": "", "finalCompletions": []}
-        return {"status": "ok",
-                "cursor_start": cursor_pos - len(info["replacedString"]),
-                "cursor_end": cursor_pos,
-                "matches": [entry["popupCompletion"]
-                            for entry in info["finalCompletions"]],
-                "metadata": {}}
+        return {
+            "status": "ok",
+            "cursor_start": cursor_pos - len(info["replacedString"]),
+            "cursor_end": cursor_pos,
+            "matches": [entry["popupCompletion"]
+                        for entry in info["finalCompletions"]],
+            "metadata": {},
+        }
 
     def do_inspect(self, code, cursor_pos, detail_level=0):
         try:
@@ -359,10 +365,12 @@ class MatlabKernel(Kernel):
             help = ""
         else:
             help = self._engine.help(token)  # Not a builtin.
-        return {"status": "ok",
-                "found": bool(help),
-                "data": {"text/plain": help},
-                "metadata": {}}
+        return {
+            "status": "ok",
+            "found": bool(help),
+            "data": {"text/plain": help},
+            "metadata": {},
+        }
 
     def do_history(
             self, hist_access_type, output, raw, session=None, start=None,
@@ -396,8 +404,10 @@ class MatlabKernel(Kernel):
                 "builtin('numel', mtree('{}', '-file').indices) == 1"
                 .format(str(path).replace("'", "''")))
             if incomplete:
-                return {"status": "incomplete",
-                        "indent": ""}  # FIXME
+                return {  # FIXME
+                    "status": "incomplete",
+                    "indent": "",
+                }
             else:
                 return {"status": "complete"}
 
