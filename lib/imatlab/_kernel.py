@@ -349,7 +349,8 @@ class MatlabKernel(Kernel):
                 "cursor_start": cursor_pos - len(info["replacedString"]),
                 "cursor_end": cursor_pos,
                 "matches": [entry["popupCompletion"]
-                            for entry in info["finalCompletions"]]}
+                            for entry in info["finalCompletions"]],
+                "metadata": {}}
 
     def do_inspect(self, code, cursor_pos, detail_level=0):
         try:
