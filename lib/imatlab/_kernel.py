@@ -111,8 +111,7 @@ class MatlabKernel(Kernel):
     language = "matlab"
 
     def _call(self, *args, **kwargs):
-        """Call a MATLAB function through `builtin` to bypass overloading.
-        """
+        """Call a MATLAB function through `builtin` to bypass overloading."""
         return self._engine.builtin(*args, **kwargs)
 
     @property
