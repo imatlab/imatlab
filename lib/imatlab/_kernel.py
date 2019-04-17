@@ -164,7 +164,7 @@ class MatlabKernel(Kernel):
         self._history = MatlabHistory(Path(self._call("prefdir")))
         self._engine.addpath(
             str(Path(sys.modules[__name__.split(".")[0]].__file__).
-                with_name("resources")),
+                with_name("data")),
             "-end")
 
     def _send_stream(self, stream, text):

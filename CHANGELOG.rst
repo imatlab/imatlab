@@ -3,6 +3,7 @@ v0.4
 
 - Improved exception reporting.
 - Heuristic workaround for MATLAB setting LD_PRELOAD.
+- Fix compatibility with MATLAB2019a.
 
 v0.3
 ====

@@ -17,8 +17,7 @@ setup(
     ],
     packages=find_packages("lib"),
     package_dir={"": "lib"},
-    package_data={"imatlab": ["resources/imatlab_export_fig.m",
-                              "resources/matlab.tpl"]},
+    package_data={"imatlab": ["data/imatlab_export_fig.m", "data/matlab.tpl"]},
     python_requires=">=3.5",
     setup_requires=["setuptools_scm"],
     use_scm_version=lambda: {  # xref __init__.py
