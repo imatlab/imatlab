@@ -59,10 +59,13 @@ function exported = imatlab_export_fig(exporter)
                     rethrow(me);
                 end
             else
+                ihc = child.InvertHardcopy;
+                child.InvertHardcopy = 'off';  % Respect user background.
                 ext = set_exporter(1+numel('print-'):end);
                 exported{i} = [name, '.', ext];
                 % Use screen resolution.
                 print(child, exported{i}, ['-d', ext], '-r0');
+                child.InvertHardcopy = ihc;
             end
             close(child);
         end
