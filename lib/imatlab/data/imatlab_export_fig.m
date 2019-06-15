@@ -39,54 +39,32 @@ function exported = imatlab_export_fig(exporter)
                    strjoin(cellfun(@(c) ['''', c, ''''], valid_exporters, ...
                            'UniformOutput', false), ', ')]);
         end
+    elseif strcmp(set_exporter, '')
+        exported = {};
     else
         children = get(0, 'children');
         [~, idx] = sort([children.Number]);
         children = children(idx);
-        switch set_exporter
-        case ''
-            exported = {};
-        case 'fig2plotly'
-            exported = cell(1, numel(children));
-            for i = 1:numel(children)
-                name = tempname('.');
+        exported = cell(1, numel(children));
+        for i = 1:numel(children)
+            child = children(i);
+            name = tempname('.');
+            if strcmp(set_exporter, 'fig2plotly')
                 exported{i} = [name, '.html'];
                 try
-                    fig2plotly(children(i), 'filename', name, ...
+                    fig2plotly(child, 'filename', name, ...
                                'offline', true, 'open', false);
                 catch me
                     warning('fig2plotly failed to export a figure');
                     rethrow(me);
                 end
-                close(children(i));
-            end
-        case 'print-png'
-            exported = cell(1, numel(children));
-            for i = 1:numel(children)
-                name = tempname('.');
-                exported{i} = [name, '.png'];
+            else
+                ext = set_exporter(1+numel('print-'):end);
+                exported{i} = [name, '.', ext];
                 % Use screen resolution.
-                print(children(i), exported{i}, '-dpng', '-r0');
-                close(children(i));
+                print(child, exported{i}, ['-d', ext], '-r0');
             end
-        case 'print-svg'
-            exported = cell(1, numel(children));
-            for i = 1:numel(children)
-                name = tempname('.');
-                exported{i} = [name, '.svg'];
-                % Use screen resolution.
-                print(children(i), exported{i}, '-dsvg', '-r0');
-                close(children(i));
-            end
-        case 'print-jpeg'
-            exported = cell(1, numel(children));
-            for i = 1:numel(children)
-                name = tempname('.');
-                exported{i} = [name, '.jpeg'];
-                % Use screen resolution.
-                print(children(i), exported{i}, '-djpeg', '-r0');
-                close(children(i));
-            end
+            close(child);
         end
     end
 end
