@@ -232,7 +232,9 @@ class MatlabKernel(Kernel):
                 status = "error"
             finally:
                 for name, buf in [("stdout", out), ("stderr", err)]:
-                    self._send_stream(name, buf.getvalue())
+                    v = buf.getvalue()
+                    if v:
+                        self._send_stream(name, v)
         else:
             raise OSError("Unsupported OS")
 
