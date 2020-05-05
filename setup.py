@@ -1,3 +1,5 @@
+from distutils.version import LooseVersion
+import setuptools
 from setuptools import setup, find_packages
 
 
@@ -23,10 +25,9 @@ setup(
     package_data={"imatlab": ["data/imatlab_export_fig.m", "data/matlab.tpl"]},
     python_requires=">=3.5",
     setup_requires=["setuptools_scm"],
-    use_scm_version=lambda: {  # xref __init__.py
+    use_scm_version=lambda: {
         "version_scheme": "post-release",
         "local_scheme": "node-and-date",
-        "write_to": "lib/imatlab/_version.py",
     },
     install_requires=[
         "ipykernel>=4.1",  # Current version of --user install.
