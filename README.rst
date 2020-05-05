@@ -80,9 +80,10 @@ turns the default figure visibility back ``'on'``.
 Plotly exporter
 ```````````````
 
-To use Plotly inline graphics in the notebook, the `Plotly MATLAB API`_
-(>=2.2.7) must be installed, as follows:
+Plotly inline graphics in the notebook depend on plotly.py_ (>=1.13) and the
+`Plotly MATLAB API`_ (>=2.2.7).  The latter must be installed as follows:
 
+.. _plotly.py: https://pypi.org/project/plotly/
 .. _Plotly MATLAB API: https://plot.ly/matlab
 
 1. Clone `plotly/MATLAB-Online`_ or download it as a `zip file`_.

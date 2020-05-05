@@ -1,5 +1,6 @@
 import base64
 from contextlib import ExitStack
+from distutils.version import LooseVersion
 from io import StringIO
 import json
 import os
@@ -11,9 +12,13 @@ from tempfile import TemporaryDirectory
 import time
 from unittest.mock import patch
 import uuid
-import warnings
 import weakref
 from xml.etree import ElementTree as ET
+
+try:
+    import importlib.metadata as _importlib_metadata
+except ImportError:
+    import importlib_metadata as _importlib_metadata
 
 import ipykernel.kernelspec
 from ipykernel.kernelbase import Kernel
@@ -22,27 +27,44 @@ from IPython.core.interactiveshell import InteractiveShell
 
 # Work around LD_PRELOAD tricks played by MATLAB by looking for a working
 # import order.
-if subprocess.call(
-        [sys.executable, "-c", "import plotly, matlab.engine"],
-        stderr=subprocess.DEVNULL) == 0:
-    import plotly
+plotly = None
+try:
+    _plotly_version = LooseVersion(_importlib_metadata.version("plotly"))
+except _importlib_metadata.PackageNotFoundError:
+    _plotly_version = "0"
+if _plotly_version >= "1.13":  # First version to test Py3.5.
+    if subprocess.call(
+            [sys.executable, "-c", "import plotly, matlab.engine"],
+            stderr=subprocess.DEVNULL) == 0:
+        import plotly
+        import matlab.engine
+        from matlab.engine import EngineError, MatlabExecutionError
+    elif subprocess.call(
+            [sys.executable, "-c", "import matlab.engine, plotly"],
+            stderr=subprocess.DEVNULL) == 0:
+        import matlab.engine
+        from matlab.engine import EngineError, MatlabExecutionError
+        import plotly
+if plotly is None:
     import matlab.engine
     from matlab.engine import EngineError, MatlabExecutionError
-elif subprocess.call(
-        [sys.executable, "-c", "import matlab.engine, plotly"],
-        stderr=subprocess.DEVNULL) == 0:
-    import matlab.engine
-    from matlab.engine import EngineError, MatlabExecutionError
-    import plotly
-else:
-    import matlab.engine
-    from matlab.engine import EngineError, MatlabExecutionError
-    plotly = None
-    warnings.warn(
-        "Failed to import both matlab.engine and plotly in the same process; "
-        "plotly output is unavailable.")
 
 from . import _redirection, __version__
+
+
+try:
+    _notebook_version = LooseVersion(_importlib_metadata.version("notebook"))
+except _importlib_metadata.PackageNotFoundError:
+    _notebook_version = None
+_PLOTLY_WARNING = (
+    # https://github.com/jupyter/notebook/issues/2287
+    "Plotly output is not supported with notebook==5.0.0.  "
+    "Please update to a newer version."
+    if _notebook_version == "5.0.0" else
+    "Failed to import both matlab.engine and plotly in the same process; "
+    "plotly output is unavailable."
+    if plotly is None else
+    None)
 
 
 # Support `python -mimatlab install`.
@@ -275,21 +297,8 @@ class MatlabKernel(Kernel):
                 self._call("cd", cwd)
             for path in map(Path(tmpdir).joinpath, exported):
                 if path.suffix.lower() == ".html":
-                    # https://github.com/jupyter/notebook/issues/2287
-                    # Delay import, as this is not a dependency otherwise.
-                    import notebook
-                    if notebook.__version__ == "5.0.0":
-                        self._send_stream(
-                            "stderr",
-                            "Plotly output is not supported with "
-                            "notebook==5.0.0.  Please update to a newer "
-                            "version.")
-                    elif not plotly:
-                        self._send_stream(
-                            "stderr",
-                            "Failed to import both matlab.engine and plotly "
-                            "in the same process; plotly output is "
-                            "unavailable.")
+                    if _PLOTLY_WARNING:
+                        self._send_stream("stderr", _PLOTLY_WARNING)
                     else:
                         self._plotly_init_notebook_mode()
                         self._send_display_data(

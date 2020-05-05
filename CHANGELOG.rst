@@ -1,3 +1,9 @@
+next
+====
+
+- Respect background color set by user.
+- Drop compulsory dependency on plotly.
+
 v0.4
 ====
 
