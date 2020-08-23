@@ -130,6 +130,12 @@ class MatlabKernel(Kernel):
             "nbconvert_exporter": "imatlab._exporter.MatlabExporter",
         }
 
+    @property
+    def banner(self):
+      msg = 'Matlab kernel running'
+      self.do_execute("try; startup; end", False, store_history=False)
+      return msg
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._silent = False
