@@ -31,8 +31,6 @@ setup(
     },
     install_requires=[
         "ipykernel>=4.1",  # Current version of --user install.
-        "nbconvert>=4.2",  # Exporter API.
-        "widgetsnbextension>=1.0",  # Anything works.
         "matlabengineforpython>=R2016b",  # Not PyPI installable.
         "importlib_metadata; python_version<'3.8'",
     ],

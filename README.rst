@@ -50,6 +50,12 @@ Use
    # or terminal:
    $ jupyter console --kernel imatlab
 
+(Note that ``imatlab`` intentionally does not declare a dependency on
+any Jupyter client, as it can be used with any one of them individually.
+In practice, this means that at least one of ``jupyter-notebook``,
+``jupyter-qtconsole``, or ``jupyter-console`` need to be installed in addition
+to ``imatlab``.)
+
 Inline graphics
 ---------------
 
@@ -81,16 +87,17 @@ Plotly exporter
 ```````````````
 
 Plotly inline graphics in the notebook depend on plotly.py_ (>=1.13) and the
-`Plotly MATLAB API`_ (>=2.2.7).  The latter must be installed as follows:
+`Plotly MATLAB API`_ (>=2.2.7), which can be installed as follows:
 
 .. _plotly.py: https://pypi.org/project/plotly/
 .. _Plotly MATLAB API: https://plot.ly/matlab
 
-1. Clone `plotly/MATLAB-Online`_ or download it as a `zip file`_.
-2. Recursively add the resulting extracted folders to the MATLAB search path
+1. Run ``pip install plotly`` or ``pip install --user plotly``.
+2. Clone `plotly/MATLAB-Online`_ or download it as a `zip file`_.
+3. Recursively add the resulting extracted folders to the MATLAB search path
    using ``addpath(genpath(<Plotly MATLAB API path>));``.  Either put such a
    call in your ``startup.m``, or then call ``savepath;`` to save the path.
-3. In MATLAB, copy the required JavaScript files and initialize the
+4. In MATLAB, copy the required JavaScript files and initialize the
    credentials:
 
    .. code:: matlab

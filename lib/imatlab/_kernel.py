@@ -45,7 +45,10 @@ if _plotly_version >= "1.13":  # First version to test Py3.5.
         import matlab.engine
         from matlab.engine import EngineError, MatlabExecutionError
         import plotly
-if plotly is None:
+    else:
+        import matlab.engine
+        from matlab.engine import EngineError, MatlabExecutionError
+else:
     import matlab.engine
     from matlab.engine import EngineError, MatlabExecutionError
 
