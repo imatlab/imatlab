@@ -164,6 +164,9 @@ class MatlabKernel(Kernel):
             r"\Akernel-\d+\Z",
             Path(self.config["IPKernelApp"]["connection_file"]).stem))
 
+        ## ----------Begin------------------
+        # CJK character cannot display CORRECTLY, we use stdout from io.StringIO to cover the old.
+        # stderr from ExitStack.enter_context don't display in terminal, but stderr frome io.StringIO do.
         if os.name == "posix":
             with ExitStack() as stack:
                 for name in ["stdout", "stderr"]:
@@ -175,6 +178,7 @@ class MatlabKernel(Kernel):
                     stack.enter_context(
                         _redirection.redirect(stream.fileno(), callback))
                 weakref.finalize(self, stack.pop_all().close)
+        ## -----------END--------------------
 
         self._dead_engines = []
         engine_name = os.environ.get("IMATLAB_CONNECT")
@@ -226,42 +230,76 @@ class MatlabKernel(Kernel):
             .format(code=code,
                     me="ME{}".format(str(uuid.uuid4()).replace("-", ""))))
 
-        if os.name == "posix":
+        ## ----------Begin(delete)------------------
+        # if os.name == "posix":
+            # try:
+                # self._call("eval", try_code, nargout=0)
+            # except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+                # status = "error"
+            # except EngineError as engine_error:
+                # # Check whether the engine died.
+                # try:
+                    # self._call("eval", "1")
+                # except EngineError:
+                    # self._send_stream(
+                        # "stderr",
+                        # "Please quit the front-end (Ctrl-D from the console "
+                        # "or qtconsole) to shut the kernel down.\n")
+                    # # We don't want to GC the engines as that'll lead to an
+                    # # attempt to close an already closed MATLAB during
+                    # # `__del__`, which raises an uncatchable exception.  So
+                    # # we just keep them around instead.
+                    # self._dead_engines.append(self._engine)
+                    # self._engine = matlab.engine.start_matlab()
+                # else:
+                    # raise engine_error
+        # elif os.name == "nt":
+            # try:
+                # out = StringIO()
+                # err = StringIO()
+                # self._call("eval", try_code, nargout=0, stdout=out, stderr=err)
+            # except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+                # status = "error"
+            # finally:
+                # for name, buf in [("stdout", out), ("stderr", err)]:
+                    # v = buf.getvalue()
+                    # if v:
+                        # self._send_stream(name, v)
+        # else:
+            # raise OSError("Unsupported OS")
+        ## -----------END(delete)-------------------
+        
+        ## ------ don't distinguish system types
+        try:
+            out = StringIO() # CJK character display CORRECTLY
+            err = StringIO()
+            self._call("eval", try_code, nargout=0, stdout=out, stderr=err)
+        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+            status = "error"
+        except EngineError as engine_error:
+            # Check whether the engine died.
             try:
-                self._call("eval", try_code, nargout=0)
-            except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
-                status = "error"
-            except EngineError as engine_error:
-                # Check whether the engine died.
-                try:
-                    self._call("eval", "1")
-                except EngineError:
-                    self._send_stream(
-                        "stderr",
-                        "Please quit the front-end (Ctrl-D from the console "
-                        "or qtconsole) to shut the kernel down.\n")
-                    # We don't want to GC the engines as that'll lead to an
-                    # attempt to close an already closed MATLAB during
-                    # `__del__`, which raises an uncatchable exception.  So
-                    # we just keep them around instead.
-                    self._dead_engines.append(self._engine)
-                    self._engine = matlab.engine.start_matlab()
-                else:
-                    raise engine_error
-        elif os.name == "nt":
-            try:
-                out = StringIO()
-                err = StringIO()
-                self._call("eval", try_code, nargout=0, stdout=out, stderr=err)
-            except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
-                status = "error"
-            finally:
-                for name, buf in [("stdout", out), ("stderr", err)]:
-                    v = buf.getvalue()
-                    if v:
-                        self._send_stream(name, v)
-        else:
-            raise OSError("Unsupported OS")
+                self._call("eval", "1")
+            except EngineError:
+                self._send_stream(
+                    "stderr",
+                    "Please quit the front-end (Ctrl-D from the console "
+                    "or qtconsole) to shut the kernel down.\n")
+                # We don't want to GC the engines as that'll lead to an
+                # attempt to close an already closed MATLAB during
+                # `__del__`, which raises an uncatchable exception.  So
+                # we just keep them around instead.
+                self._dead_engines.append(self._engine)
+                self._engine = matlab.engine.start_matlab()
+            else:
+                raise engine_error
+        finally:
+            #self._send_stream(name, buf.getvalue())  # display stdout with stderr cause ipynb cell with a red line
+            for name, buf in [("stdout", out), ("stderr", err)]:
+                v = buf.getvalue()
+                if v: # display stdout without stderr
+                    self._send_stream(name, v)
+        ## -----------END----------------
 
         self._export_figures()
 
