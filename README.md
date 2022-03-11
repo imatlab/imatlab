@@ -1,6 +1,6 @@
 # fix and enhance
 - [x] CJK character display CORRECTLY now! 2022-3-9
-- [x] use `plotly_matlab` to `_send_display_data` into jupyter notebook like `plotly.py`, which are three layers for `outputs.data`, such as `"application/vnd.plotly.v1+json": {json_compatible_fig_dict}`, `"image/png":"base64"` and `"text/html":"plotly_fig_html"`. see: [dennischancs/plotly_matlab](https://github.com/dennischancs/plotly_matlab) ![](https://images.weserv.nl?url=https://raw.githubusercontent.com/dennischancs/pic/main/img/202203120246485.png)
+- [x] use `plotly_matlab` to `_send_display_data` into jupyter notebook like `plotly.py`, which are three layers for `outputs.data`, such as `"application/vnd.plotly.v1+json": {json_compatible_fig_dict}`, `"image/png":"base64"` and `"text/html":"plotly_fig_html"`. see: [dennischancs/plotly_matlab](https://github.com/dennischancs/imatlab/tree/dennischancs-patch-1) ![](https://images.weserv.nl?url=https://raw.githubusercontent.com/dennischancs/pic/main/img/202203120246485.png)
 
 
 ```bash
