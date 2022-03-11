@@ -3,10 +3,13 @@
 - [x] use `plotly_matlab` to `_send_display_data` into jupyter notebook like `plotly.py`, which are three layers for `outputs.data`, such as `"application/vnd.plotly.v1+json": {json_compatible_fig_dict}`, `"image/png":"base64"` and `"text/html":"plotly_fig_html"`. see: [dennischancs/plotly_matlab](https://github.com/dennischancs/imatlab/tree/dennischancs-patch-1) ![](https://images.weserv.nl?url=https://raw.githubusercontent.com/dennischancs/pic/main/img/202203120246485.png)
 
 
+## Install
 ```bash
-pip install git+https://github.com/dennischancs/imatlab/tree/dennischancs-patch-1  # from Github
+pip install git+https://github.com/dennischancs/imatlab@dennischancs-patch-1  # from Github
 python -mimatlab install --user
 ```
+
+enable `fig2plotly` option  see: [dennischancs/plotly_matlab](https://github.com/dennischancs/plotly_matlab)
 
 ## Usage 
 
@@ -33,3 +36,6 @@ filename = ['测试fig2plotly'];
 %2: use `plotlyoffline.m`
 %fig2plotly(gcf, 'filename', filename, 'offline', true, 'open', true);
 ```
+
+
+## [More](./README.rst)
