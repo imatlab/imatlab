@@ -14,6 +14,7 @@ from unittest.mock import patch
 import uuid
 import weakref
 from xml.etree import ElementTree as ET
+import re
 
 try:
     import importlib.metadata as _importlib_metadata
@@ -341,9 +342,20 @@ class MatlabKernel(Kernel):
                     if _PLOTLY_WARNING:
                         self._send_stream("stderr", _PLOTLY_WARNING)
                     else:
+                        # prepare three layers
+                        offlineScript = path.read_text()
+                        plotlyJson = re.findall(r'<plotlyJson>(.*)</plotlyJson>', offlineScript, flags=re.S)
+                        plotlyPngBase64 = re.findall(r'<plotlyPngBase64>(.*)</plotlyPngBase64>', offlineScript, flags=re.S)
+                        plotlyScript = re.findall(r'<plotlyScript>(.*)</plotlyScript>', offlineScript, flags=re.S)
+                        # send display data
                         self._plotly_init_notebook_mode()
                         self._send_display_data(
-                            {"text/html": path.read_text()}, {})
+                            # {"text/html": path.read_text()}, {})
+                            # three layers for ipynb like plotly.py do
+                            {"application/vnd.plotly.v1+json": json.loads(''.join(plotlyJson)), 
+                             "image/png": plotlyPngBase64, 
+                             "text/html": plotlyScript
+                             }, {})
                 elif path.suffix.lower() == ".png":
                     self._send_display_data(
                         {"image/png":
