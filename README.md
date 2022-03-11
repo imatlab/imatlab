@@ -4,7 +4,7 @@
 
 
 ```bash
-pip install git+https://github.com/dennischancs/imatlab  # from Github
+pip install git+https://github.com/dennischancs/imatlab/tree/dennischancs-patch-1  # from Github
 python -mimatlab install --user
 ```
 
