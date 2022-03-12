@@ -14,7 +14,6 @@ from unittest.mock import patch
 import uuid
 import weakref
 from xml.etree import ElementTree as ET
-import re
 
 try:
     import importlib.metadata as _importlib_metadata
