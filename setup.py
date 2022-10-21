@@ -22,7 +22,7 @@ setup(
     ],
     packages=find_packages("lib"),
     package_dir={"": "lib"},
-    package_data={"imatlab": ["data/imatlab_export_fig.m", "data/matlab.tpl"]},
+    package_data={"imatlab": ["data/imatlab_export_fig.m"]},
     python_requires=">=3.5",
     setup_requires=["setuptools_scm"],
     use_scm_version=lambda: {
@@ -34,9 +34,4 @@ setup(
         "matlabengineforpython>=R2016b",  # Not PyPI installable.
         "importlib_metadata; python_version<'3.8'",
     ],
-    entry_points={
-        "nbconvert.exporters": [
-            "matlab = imatlab._exporter:MatlabExporter",
-        ],
-    },
 )

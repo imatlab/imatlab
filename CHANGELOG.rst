@@ -3,6 +3,7 @@ next
 
 - Respect background color set by user.
 - Drop compulsory dependency on plotly.
+- Drop custom exporter (``matlab_nbconvert`` is on PyPI).
 
 v0.4
 ====
