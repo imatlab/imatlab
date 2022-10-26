@@ -12,9 +12,9 @@ A Jupyter kernel for MATLAB
 .. contents:: :local:
 
 This kernel requires Jupyter_ with Python 3.5+, and the `MATLAB engine for
-Python`_ R2016b+ (this release provides a much better completion API), which
-needs to be installed first.  Note that additionally, Python versions not
-supported by the engine are likewise not supported by the kernel.
+Python`_ R2016b+, which needs to be installed first.  Note that additionally,
+Python versions not supported by the engine are likewise not supported by the
+kernel.
 
 .. _Jupyter: http://jupyter.readthedocs.org/en/latest/install.html
 .. _MATLAB engine for Python: https://www.mathworks.com/help/matlab/matlab-engine-for-python.html
@@ -173,8 +173,6 @@ interactive input is not supported by the engine API.
 Differences with the Calysto MATLAB Kernel
 ------------------------------------------
 
-- The completion system is much more robust, by relying on the new API
-  available in MATLAB 2016b.
 - History is read from and written to MATLAB's own ``History.xml``, and thus
   shared with standard MATLAB sessions.  Note that if the file does not exist
   (e.g. if the **don't save history file** option is set, or in a console-only

@@ -139,6 +139,9 @@ class MatlabKernel(Kernel):
         """Call a MATLAB function through `builtin` to bypass overloading."""
         return self._engine.builtin(*args, **kwargs)
 
+    def _eval(self, *args, **kwargs):
+        return self._engine.builtin("eval", *args, **kwargs)
+
     @property
     def language_info(self):
         # We also hook this property to `cd` into the current directory if
@@ -227,13 +230,13 @@ class MatlabKernel(Kernel):
 
         if os.name == "posix":
             try:
-                self._call("eval", try_code, nargout=0)
+                self._eval(try_code, nargout=0)
             except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
                 status = "error"
             except EngineError as engine_error:
                 # Check whether the engine died.
                 try:
-                    self._call("eval", "1")
+                    self._eval("1")
                 except EngineError:
                     self._send_stream(
                         "stderr",
@@ -251,7 +254,7 @@ class MatlabKernel(Kernel):
             try:
                 out = StringIO()
                 err = StringIO()
-                self._call("eval", try_code, nargout=0, stdout=out, stderr=err)
+                self._eval(try_code, nargout=0, stdout=out, stderr=err)
             except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
                 status = "error"
             finally:
@@ -331,44 +334,74 @@ class MatlabKernel(Kernel):
             plotly.offline.init_notebook_mode()
 
     def do_complete(self, code, cursor_pos):
-        # The following API is only present since MATLAB2016b:
-        #     String com.mathworks.jmi.MatlabMCR.mtGetCompletions(String, int)
-        # (where the second argument is the length of the first) returns a json
-        # string:
-        # { "replacedString": <str>,
-        #   ?"partialCompletion":
-        #       {"completionString": "",
-        #        "offset": 0}
-        #   "finalCompletions":
-        #       [{ "completion":
-        #              { "completionString": <str>,
-        #                "offset": 0 },
-        #          "matchType": <str>,
-        #          "popupCompletion": <str> },
-        #        ...]}
-        # It's not clear whether "completionString" and "popupCompletion" are
-        # ever different.
-        # It is the presence of "replacedString" (or "offset") which makes
-        # this API preferable to the older mtFindAllTabCompletions (used by
-        # matlab_kernel).
-        # Failing modes:
-        #   - "" -> ""
-        #   - "(" -> { "cannotComplete": true}
-        info_s, = self._call(
-            "eval",
-            "cell(com.mathworks.jmi.MatlabMCR().mtGetCompletions('{}', {}))"
-            .format(code[:cursor_pos].replace("'", "''"), cursor_pos))
-        info = json.loads(info_s)
-        if not info or info == {"cannotComplete": True}:
-            info = {"replacedString": "", "finalCompletions": []}
-        return {
+        code = code[:cursor_pos]
+        reply = {
             "status": "ok",
-            "cursor_start": cursor_pos - len(info["replacedString"]),
+            "cursor_start": cursor_pos,
             "cursor_end": cursor_pos,
-            "matches": [entry["popupCompletion"]
-                        for entry in info["finalCompletions"]],
+            "matches": [],
             "metadata": {},
         }
+
+        if ("mtGetCompletions"
+                in self._eval("methods(com.mathworks.jmi.MatlabMCR)")):
+            # Use
+            #
+            #     String MatlabMCR.mtGetCompletions(String, int)
+            #
+            # (where the second argument is the length of the first).  This
+            # API, only present from MATLAB2016b to 2019b, returns a json
+            # string:
+            #
+            # { "replacedString": <str>,
+            #   ?"partialCompletion":
+            #       {"completionString": "",
+            #        "offset": 0}
+            #   "finalCompletions":
+            #       [{ "completion":
+            #              { "completionString": <str>,
+            #                "offset": 0 },
+            #          "matchType": <str>,
+            #          "popupCompletion": <str> },
+            #        ...]}
+            #
+            # It's not clear whether "completionString" and "popupCompletion"
+            # are ever different.
+            #
+            # It is the presence of "replacedString" (or "offset") which makes
+            # this API preferable to the mtFindAllTabCompletions (see the
+            # manual splitting on dots in the case below).
+            #
+            # Failing modes:
+            #   - "" -> ""
+            #   - "(" -> { "cannotComplete": true}
+            info_s, = self._eval(
+                "cell("
+                "com.mathworks.jmi.MatlabMCR().mtGetCompletions('{}', {}))"
+                .format(code.replace("'", "''"), cursor_pos))
+            info = json.loads(info_s)
+            if not info or info == {"cannotComplete": True}:
+                info = {"replacedString": "", "finalCompletions": []}
+            reply["cursor_start"] -= len(info["replacedString"])
+            reply["matches"] = [entry["popupCompletion"]
+                                for entry in info["finalCompletions"]]
+
+        elif cursor_pos > 0:
+            # Use
+            #
+            #     String[] MatlabMCR.mtFindAllTabCompletions(String, int, int)
+            #
+            # This directly returns a list of completions.  It returns the
+            # *previously computed* list of completions for a zero-length
+            # input, so only handle the non-zero length case.
+            completions = self._eval(
+                "cell(com.mathworks.jmi.MatlabMCR().mtFindAllTabCompletions"
+                "('{}', {}, 0))"
+                .format(code.replace("'", "''"), cursor_pos))
+            reply["cursor_start"] -= len(re.search(r"\w*$", code).group())
+            reply["matches"] = completions
+
+        return reply
 
     def do_inspect(self, code, cursor_pos, detail_level=0):
         try:
@@ -393,8 +426,7 @@ class MatlabKernel(Kernel):
         with TemporaryDirectory() as tmpdir:
             path = Path(tmpdir, "test_complete.m")
             path.write_text(code)
-            errs = self._call(
-                "eval",
+            errs = self._eval(
                 "feval(@(e) {{e.message}}, checkcode('-m2', '{}'))"
                 .format(str(path).replace("'", "''")))
             # 'Invalid syntax': unmatched brackets.
@@ -411,8 +443,7 @@ class MatlabKernel(Kernel):
             # to generate code for classdefs with a name not matching the file
             # name, whereas we actually want to report `classdef foo, end` to
             # be reported as complete (so that MATLAB errors at evaluation).
-            incomplete = self._call(
-                "eval",
+            incomplete = self._eval(
                 "builtin('numel', mtree('{}', '-file').indices) == 1"
                 .format(str(path).replace("'", "''")))
             if incomplete:
