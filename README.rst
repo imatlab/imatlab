@@ -12,12 +12,15 @@ A Jupyter kernel for MATLAB
 .. contents:: :local:
 
 This kernel requires Jupyter_ with Python 3.5+, and the `MATLAB engine for
-Python`_ R2016b+, which needs to be installed first.  Note that additionally,
-Python versions not supported by the engine are likewise not supported by the
-kernel.
+Python`_ R2016b+, which needs to be installed first.  (We intentionally do not
+declare a dependency on the matlabengine_ PyPI package to maintain
+back-compatibility with older versions of MATLAB, for which the engine needs
+to be manually installed.)  Note that additionally, Python versions not
+supported by the engine are likewise not supported by the kernel.
 
 .. _Jupyter: http://jupyter.readthedocs.org/en/latest/install.html
 .. _MATLAB engine for Python: https://www.mathworks.com/help/matlab/matlab-engine-for-python.html
+.. _matlabengine: https://pypi.org/project/matlabengine/
 
 Installation
 ------------
