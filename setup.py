@@ -1,10 +1,4 @@
-from distutils.version import LooseVersion
-import setuptools
 from setuptools import setup, find_packages
-
-
-if LooseVersion(setuptools.__version__) < "40.1":
-    raise ImportError("setuptools>=40.1 is required")
 
 
 setup(
