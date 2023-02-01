@@ -1,6 +1,14 @@
 A Jupyter kernel for MATLAB
 ===========================
 
+**Note:** This package is no longer actively maintained.  Consider using the
+official `MATLAB integration for Jupyter`_ instead.
+
+.. _MATLAB integration for Jupyter:
+   https:/www.mathworks.com/products/reference-architectures/jupyter.html
+
+-----
+
 |Python35| |MATLAB2016b| |PyPI|
 
 .. |Python35| image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
